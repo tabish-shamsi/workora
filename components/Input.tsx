@@ -1,3 +1,5 @@
+"use client"
+
 import {
   FormField,
   FormItem,
@@ -6,7 +8,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input as ShadcnInput } from "@/components/ui/input";
-import { Control, FieldPath, FieldValues } from "react-hook-form";
+import {
+  Control,
+  ControllerFieldState,
+  ControllerRenderProps,
+  FieldPath,
+  FieldValues,
+  Path,
+} from "react-hook-form";
 import {
   Select,
   SelectContent,
@@ -14,6 +23,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "./ui/textarea";
+
+import { ChevronDownIcon } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 interface FormInputFieldProps<T extends FieldValues> {
   control: Control<T>;
@@ -34,19 +56,12 @@ export function Input<T extends FieldValues>({
   className,
   placeholder,
 }: FormInputFieldProps<T>) {
-  const type_ = type ?? "text";
+  const type_ = name === "email" || name === "password" ? name : "text";
 
-  const inputClasses = className
+  const typeClasses = className
     ?.split(" ")
     .map((c) => c.split(":"))
-    .filter((c) => c[0] === "input")
-    .map((c) => c[1])
-    .join(" ");
-
-  const selectClasses = className
-    ?.split(" ")
-    .map((c) => c.split(":"))
-    .filter((c) => c[0] === "select")
+    .filter((c) => c[0] === type)
     .map((c) => c[1])
     .join(" ");
 
@@ -58,6 +73,96 @@ export function Input<T extends FieldValues>({
     })
     .join(" ");
 
+  function FormContent({
+    field,
+    fieldState,
+  }: {
+    field: ControllerRenderProps<T, Path<T>>;
+    fieldState: ControllerFieldState;
+  }) {
+    const [open, setOpen] = useState(false);
+
+    switch (type) {
+      case "select":
+        return (
+          <Select
+            value={field.value}
+            onValueChange={field.onChange}
+            name="type"
+          >
+            <SelectTrigger
+              aria-invalid={fieldState.error?.message ? true : false}
+              className={typeClasses}
+            >
+              <SelectValue placeholder={placeholder} />
+            </SelectTrigger>
+            <SelectContent>
+              {options?.map((option) => (
+                <SelectItem
+                  key={`${name}-option-${option}`}
+                  value={option}
+                  className="capitalize"
+                >
+                  {option.split("-").join(" ")}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        );
+      case "textarea":
+        return (
+          <Textarea
+            {...field}
+            className={typeClasses}
+            placeholder={placeholder}
+            aria-invalid={fieldState.error?.message ? true : false}
+          />
+        );
+      case "date":
+        return (
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                id="date"
+                className={cn(
+                  "w-full justify-between font-normal",
+                )}
+                aria-invalid={fieldState.error?.message ? true : false}
+              >
+                {field.value ? field.value?.toLocaleDateString() : placeholder}
+                <ChevronDownIcon />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent
+              className="w-auto overflow-hidden p-0"
+              align="start"
+            >
+              <Calendar
+                mode="single"
+                selected={field.value}
+                captionLayout="dropdown"
+                onSelect={(date) => {
+                  field.onChange(date);
+                  setOpen(false);
+                }}
+              />
+            </PopoverContent>
+          </Popover>
+        );
+      default:
+        return (
+          <ShadcnInput
+            placeholder={placeholder}
+            type={type_}
+            {...field}
+            className={typeClasses}
+            aria-invalid={fieldState.error?.message ? true : false}
+          />
+        );
+    }
+  }
+
   return (
     <FormField
       control={control}
@@ -66,38 +171,7 @@ export function Input<T extends FieldValues>({
         <FormItem className={FormItemClasses}>
           <FormLabel>{label}</FormLabel>
           <FormControl>
-            {type === "select" ? (
-              <Select
-                value={field.value}
-                onValueChange={field.onChange}
-                name="type"
-              >
-                <SelectTrigger
-                  aria-invalid={fieldState.error?.message ? true : false}
-                  className={selectClasses}
-                >
-                  <SelectValue placeholder={placeholder} />
-                </SelectTrigger>
-                <SelectContent>
-                  {options?.map((option) => (
-                    <SelectItem
-                      key={`${name}-option-${option}`}
-                      value={option}
-                      className="capitalize"
-                    >
-                      {option.split("-").join(" ")}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            ) : (
-              <ShadcnInput
-                placeholder={placeholder}
-                type={type_}
-                {...field}
-                className={inputClasses}
-              />
-            )}
+            <FormContent field={field} fieldState={fieldState} />
           </FormControl>
           <FormMessage className="mt-1" />
         </FormItem>

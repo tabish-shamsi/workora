@@ -3,7 +3,7 @@ import { ReactNode } from "react";
 
 export default function Form({
   form,
-  onSubmit,
+  onSubmit: submit,
   children,
   className,
 }: {
@@ -14,7 +14,7 @@ export default function Form({
 }) {
   return (
     <ShadcnForm {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className={className}>
+      <form onSubmit={form.handleSubmit(submit)} className={className}>
         {children}
       </form>
     </ShadcnForm>

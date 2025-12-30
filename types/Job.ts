@@ -6,7 +6,9 @@ type Job = {
   type: string;
   description: string;
   status: "open" | "filled" | "expired";
+  lastDate:  string;
   createdAt: string; // ISO date
+  salary: string;
 };
 
 export default Job

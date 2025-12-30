@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import SubmitButton from "./submit-button";
 import searchJobSchema from "@/schemas/search-job-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { jobTypeOptions } from "@/lib/constants";
 
 export default function SearchCard() {
   const handleSearch = () => {
@@ -24,7 +25,7 @@ export default function SearchCard() {
 
   const { control } = form;
 
-  const jobTypeOptions = ["part-time", "full-time", "contract", "internship"];
+  
 
   return (
     <Card className="w-full">
@@ -57,7 +58,7 @@ export default function SearchCard() {
           />
 
           <SubmitButton pending={false} className="w-full md:w-auto">
-            Search Job
+            Search Jobs
           </SubmitButton>
         </Form>
       </CardContent>
