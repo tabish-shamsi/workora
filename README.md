@@ -1,36 +1,140 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🧑‍💼 Workora — Job Board Platform
 
-## Getting Started
+Workora is a lightweight, modern job board web application built with **Next.js** and **shadcn/ui**.
+It allows employers to post jobs and candidates to browse and apply — without unnecessary complexity.The platform is designed to be easy to use and extendable, with a focus on simplicity and performance.
 
-First, run the development server:
+---
+
+## 🚀 Features
+
+### 🔍 Job Discovery
+
+* Browse job listings with pagination
+* View job details including:
+
+  * Company
+  * Location
+  * Job type
+  * Posted date
+  * Job status (Open / Filled / Expired)
+
+### 🗂 Job Status Handling
+
+* **Open** → accepting applications
+* **Filled** → position closed manually
+* **Expired** → auto-expired after 30 days
+
+### 🧾 Search & Filter
+
+* Search jobs by title or keywords
+* Filter by:
+
+  * Job type
+  * Location
+  * Status
+
+### 📄 Pagination
+
+* URL-based pagination using query parameters
+* SEO-friendly and refresh-safe
+* Reusable pagination component
+
+### 🎨 Modern UI
+
+* Built with **shadcn/ui**
+* Responsive design
+* Clean, professional layout
+* Minimalist branding (Workora)
+
+---
+
+## 🛠 Tech Stack
+
+* **Framework:** Next.js (App Router)
+* **Language:** TypeScript
+* **UI:** shadcn/ui + Tailwind CSS
+* **Icons:** Lucide Icons
+* **Date Handling:** date-fns
+* **State:** URL Search Params (no overengineering)
+
+---
+
+## 📁 Project Structure
+
+```
+app/
+ ├── page.tsx              # Home page (job listings)
+ ├── jobs/[id]/page.tsx    # Job details page
+components/
+ ├── JobCard.tsx
+ ├── JobList.tsx
+ ├── Pagination.tsx
+ ├── Header.tsx
+ ├── Footer.tsx
+lib/
+ ├── mock-jobs.ts          # Mock job data
+types/
+ ├── job.ts
+```
+
+---
+
+## 🧪 Mock Data
+
+Workora currently uses mock job data to simulate real-world job listings, including:
+
+* Multiple job roles
+* Different locations
+* Various job statuses
+* Realistic posting dates
+
+This setup allows easy migration to a database later.
+
+---
+
+## 🧑‍💻 Getting Started
+
+### 1️⃣ Clone the repository
+
+```bash
+git clone https://github.com/your-username/workora.git
+cd workora
+```
+
+### 2️⃣ Install dependencies
+
+```bash
+npm install
+```
+
+### 3️⃣ Run the development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000` in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📄 License
 
-## Learn More
+This project is open-source and available under the **MIT License**.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🙌 Author
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Tabish Shamsi**
+Frontend / Full-Stack Developer
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### ⭐ Why This Project Matters
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Workora demonstrates:
+
+* Real-world UI patterns
+* Scalable component architecture
+* Thoughtful feature design
+* Clean, maintainable code
