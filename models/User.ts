@@ -6,10 +6,12 @@ export type User = {
   email: string;
   password: string;
   accountType: "candidate" | "employer";
+  company?: string;
   verificationToken: string | null;
   isVerified: boolean;
   jobs?: mongoose.Types.ObjectId[];
   applications?: mongoose.Types.ObjectId[];
+  resumes: mongoose.Types.ObjectId[];
 
   createdAt: Date;
   updatedAt: Date;
@@ -34,6 +36,9 @@ const userSchema = new mongoose.Schema<User>(
       type: String,
       required: true,
     },
+    company: {
+      type: String,
+    },
 
     verificationToken: {
       type: String,
@@ -52,6 +57,12 @@ const userSchema = new mongoose.Schema<User>(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Application",
+      },
+    ],
+    resumes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Resume",
       },
     ],
   },

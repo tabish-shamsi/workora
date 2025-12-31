@@ -34,6 +34,8 @@ export default function RegisterPage() {
     console.log("Register data:", data);
   };
 
+  const accountType = form.watch("accountType");
+
   return (
     <section className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4">
       <Card className="w-full max-w-md">
@@ -52,14 +54,6 @@ export default function RegisterPage() {
               control={form.control}
               name="name"
               label="Full Name"
-            />
-
-            {/* Company */}
-            <Input
-              placeholder="TechNova"
-              control={form.control}
-              name="company"
-              label="Company Name"
             />
 
             {/* Email */}
@@ -87,6 +81,16 @@ export default function RegisterPage() {
               options={["cadidate", "employer"]}
               className="select:w-full"
             />
+
+            {/* Company */}
+            {accountType === "employer" && (
+              <Input
+                placeholder="TechNova"
+                control={form.control}
+                name="company"
+                label="Company Name"
+              />
+            )}
 
             <SubmitButton pending={loading} className="w-full">
               Create Account
