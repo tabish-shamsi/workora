@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   FormField,
@@ -36,6 +36,12 @@ import {
 } from "@/components/ui/popover";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "./ui/input-otp";
 
 interface FormInputFieldProps<T extends FieldValues> {
   control: Control<T>;
@@ -118,6 +124,40 @@ export function Input<T extends FieldValues>({
             aria-invalid={fieldState.error?.message ? true : false}
           />
         );
+      case "otp":
+        return (
+          <InputOTP {...field} maxLength={6}>
+            <InputOTPGroup className="gap-2 *:data-[slot=input-otp-slot]:rounded-md *:data-[slot=input-otp-slot]:border">
+              <InputOTPSlot
+                aria-invalid={fieldState.error?.message ? true : false}
+                index={0}
+              />
+              <InputOTPSlot
+                aria-invalid={fieldState.error?.message ? true : false}
+                index={1}
+              />
+              <InputOTPSlot
+                aria-invalid={fieldState.error?.message ? true : false}
+                index={2}
+              />
+            </InputOTPGroup>
+            <InputOTPSeparator />
+            <InputOTPGroup className="gap-2 *:data-[slot=input-otp-slot]:rounded-md *:data-[slot=input-otp-slot]:border">
+              <InputOTPSlot
+                aria-invalid={fieldState.error?.message ? true : false}
+                index={3}
+              />
+              <InputOTPSlot
+                aria-invalid={fieldState.error?.message ? true : false}
+                index={4}
+              />
+              <InputOTPSlot
+                aria-invalid={fieldState.error?.message ? true : false}
+                index={5}
+              />
+            </InputOTPGroup>
+          </InputOTP>
+        );
       case "date":
         return (
           <Popover open={open} onOpenChange={setOpen}>
@@ -125,9 +165,7 @@ export function Input<T extends FieldValues>({
               <Button
                 variant="outline"
                 id="date"
-                className={cn(
-                  "w-full justify-between font-normal",
-                )}
+                className={cn("w-full justify-between font-normal")}
                 aria-invalid={fieldState.error?.message ? true : false}
               >
                 {field.value ? field.value?.toLocaleDateString() : placeholder}

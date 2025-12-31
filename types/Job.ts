@@ -9,6 +9,7 @@ type Job = {
   lastDate:  string;
   createdAt: string; // ISO date
   salary: string;
+  applications?: number
 };
 
 export default Job

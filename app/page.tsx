@@ -41,7 +41,7 @@ export default function Home() {
       </section>
 
       {/* Container wrapper */}
-      <div className="container max-w-3/4 mx-auto space-y-8">
+      <div className="container">
         <SearchCard />
 
         <section className="space-y-8">

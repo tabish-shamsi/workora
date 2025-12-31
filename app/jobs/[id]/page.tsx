@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { formatDistanceToNow, format } from "date-fns";
 import { mockJobs } from "@/temporary/mock-jobs";
+import Link from "next/link";
 
 type JobDetailsPageProps = {
   params: Promise<{
@@ -12,14 +13,13 @@ type JobDetailsPageProps = {
 };
 
 export default async function JobDetailsPage({ params }: JobDetailsPageProps) {
-  const {id} = await params
+  const { id } = await params;
   const job = mockJobs.find((job) => job.id === id);
 
   if (!job) return notFound();
 
   const isExpired =
-    new Date(job.createdAt).getTime() <
-    Date.now() - 30 * 24 * 60 * 60 * 1000;
+    new Date(job.createdAt).getTime() < Date.now() - 30 * 24 * 60 * 60 * 1000;
 
   const status = isExpired ? "expired" : job.status;
 
@@ -39,8 +39,8 @@ export default async function JobDetailsPage({ params }: JobDetailsPageProps) {
                 status === "open"
                   ? "default"
                   : status === "filled"
-                  ? "secondary"
-                  : "destructive"
+                    ? "secondary"
+                    : "destructive"
               }
             >
               {status}
@@ -51,8 +51,7 @@ export default async function JobDetailsPage({ params }: JobDetailsPageProps) {
             <span>📍 {job.location}</span>
             <span>🕒 {job.type}</span>
             <span>
-              Posted{" "}
-              {formatDistanceToNow(new Date(job.createdAt))} ago
+              Posted {formatDistanceToNow(new Date(job.createdAt))} ago
             </span>
           </div>
         </CardHeader>
@@ -60,9 +59,7 @@ export default async function JobDetailsPage({ params }: JobDetailsPageProps) {
         <CardContent className="space-y-6">
           {/* Description */}
           <div>
-            <h2 className="text-lg font-semibold mb-2">
-              Job Description
-            </h2>
+            <h2 className="text-lg font-semibold mb-2">Job Description</h2>
             <p className="text-gray-700 whitespace-pre-line">
               {job.description}
             </p>
@@ -74,18 +71,17 @@ export default async function JobDetailsPage({ params }: JobDetailsPageProps) {
               Apply before:{" "}
               {format(
                 new Date(
-                  new Date(job.createdAt).getTime() +
-                    30 * 24 * 60 * 60 * 1000
+                  new Date(job.createdAt).getTime() + 30 * 24 * 60 * 60 * 1000,
                 ),
-                "PPP"
+                "PPP",
               )}
             </p>
 
-            <Button disabled={status !== "open"}>
-              {status === "open"
-                ? "Apply Now"
-                : "Applications Closed"}
-            </Button>
+            <Link href={`/jobs/${id}/apply`}>
+              <Button disabled={status !== "open"}>
+                {status === "open" ? "Apply Now" : "Applications Closed"}
+              </Button>
+            </Link>
           </div>
         </CardContent>
       </Card>

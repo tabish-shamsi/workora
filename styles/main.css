@@ -176,3 +176,7 @@
 li {
   list-style: none;
 }
+
+.container {
+  @apply max-w-3/4 mx-auto space-y-8
+}

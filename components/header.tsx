@@ -76,7 +76,7 @@ export default function Header() {
   const navLinks = [
     { name: "Home", href: "/" },
     { name: "Post Job", href: "/employer/post-job" },
-    { name: "Dashboard", href: "/employer/jobs" },
+    { name: "Dashboard", href: "/dashboard" },
     { name: "Login", href: "/login" },
   ] as NavLink[];
 
