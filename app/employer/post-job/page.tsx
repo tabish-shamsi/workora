@@ -79,6 +79,13 @@ export default function PostJobPage() {
               className="select:w-full"
             />
 
+            <Input
+              name="salary"
+              label="Salary Range"
+              placeholder="Rs 60,000 - Rs 80,000"
+              control={form.control}
+            />
+
             {/* Last Date */}
             <Input
               name="lastDate"
@@ -95,7 +102,7 @@ export default function PostJobPage() {
               placeholder="Describe the role, responsibilities, and requirements for this job."
               control={form.control}
               type="textarea"
-            /> 
+            />
             {/* Submit */}
             <SubmitButton pending={loading}>Post Job</SubmitButton>
           </Form>
