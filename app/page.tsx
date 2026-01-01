@@ -2,13 +2,41 @@ import JobList from "@/components/job-list";
 import Pagination from "@/components/pagination";
 import SearchCard from "@/components/search-card";
 import { Button } from "@/components/ui/button";
-import { mockJobs } from "@/temporary/mock-jobs";
-import Job from "@/types/Job";
 import Link from "next/link";
 
-const ITEMS_PER_PAGE = 6;
+async function getJobs(params: {
+  page?: string;
+  search?: string;
+  location?: string;
+  type?: string;
+}) {
+  const query = new URLSearchParams({
+    page: params.page || "1",
+    search: params.search || "",
+    location: params.location || "",
+    type: params.type || "",
+  });
 
-export default function Home() {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/jobs?${query}`,
+    { cache: "no-store" },
+  );
+
+  return res.json();
+}
+
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    page?: string;
+    search?: string;
+    location?: string;
+    type?: string;
+  }>;
+}) {
+  const data = await getJobs(await searchParams);
+
   return (
     <main className="space-y-8 ">
       <section className="bg-white">
@@ -45,11 +73,11 @@ export default function Home() {
         <SearchCard />
 
         <section className="space-y-8">
-          <JobList jobs={mockJobs} />
+          <JobList jobs={data.data} />
 
           <Pagination
-            totalItems={mockJobs.length}
-            itemsPerPage={ITEMS_PER_PAGE}
+            totalItems={data.pagination.totalJobs}
+            itemsPerPage={data.pagination.limit}
           />
         </section>
       </div>

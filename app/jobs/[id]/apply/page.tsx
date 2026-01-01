@@ -7,9 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import applyJobSchema, { ApplyJobSchemaType } from "@/schemas/apply-job-schema";
 import Form from "@/components/Form";
 import { Input } from "@/components/Input";
-import { Input as ShadcnInput } from "@/components/ui/input";
 import SubmitButton from "@/components/submit-button";
-import { Label } from "@/components/ui/label";
 import FileInput from "@/components/file-input";
 
 export default function ApplyJobPage() {
@@ -17,6 +15,12 @@ export default function ApplyJobPage() {
 
   const form = useForm<ApplyJobSchemaType>({
     resolver: zodResolver(applyJobSchema),
+    defaultValues: {
+      coverLetter: "",
+      email: "",
+      name: "",
+      resume: undefined,
+    },
   });
 
   const handleSubmit = async (data: ApplyJobSchemaType) => {

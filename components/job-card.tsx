@@ -7,8 +7,8 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { formatDistanceToNow } from "date-fns";
-import Job from "@/types/Job";
+import { formatDistanceToNow } from "date-fns"; 
+import { Job } from "@/models/Job";
 
 export default function JobCard({ job }: { job: Job }) {
   const isExpired =
@@ -46,9 +46,9 @@ export default function JobCard({ job }: { job: Job }) {
       </CardContent>
 
       <CardFooter className="flex justify-between items-center text-sm text-gray-500">
-        <span>Posted {formatDistanceToNow(new Date(job.createdAt))} ago</span>
+        <span>Posted {formatDistanceToNow(new Date(job.createdAt), {addSuffix: true})}</span>
 
-        <Link href={`/jobs/${job.id}`}>
+        <Link href={`/jobs/${job._id}`}>
           <Button variant="outline" size="sm" disabled={status !== "open"}>
             {status === "open" ? "View Details" : "Closed"}
           </Button>

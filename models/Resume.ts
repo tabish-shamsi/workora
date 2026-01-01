@@ -1,22 +1,27 @@
 import mongoose from "mongoose";
 
 export type Resume = {
-  cadidate: mongoose.Types.ObjectId;
-  resume: string;
+  candidate: mongoose.Types.ObjectId;
+  url: string;
+  fileName: string;
   fileId: string;
   createdAt: Date;
   updatedAt: Date;
 };
 
 const resumeSchema = new mongoose.Schema<Resume>({
-  cadidate: {
+  candidate: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Cadidate",
     required: true,
   },
-  resume: {
+  url: {
     type: String,
     required: true,
+  },
+  fileName: {
+    type: String,
+    required: true
   },
   fileId: {
     type: String,

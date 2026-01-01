@@ -5,13 +5,27 @@ import Form from "./Form";
 import { Input } from "./Input";
 import { useForm } from "react-hook-form";
 import SubmitButton from "./submit-button";
-import searchJobSchema from "@/schemas/search-job-schema";
+import searchJobSchema, { SearchJobTypes } from "@/schemas/search-job-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { jobTypeOptions } from "@/lib/constants";
+import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useState } from "react";
 
 export default function SearchCard() {
-  const handleSearch = () => {
-    console.log("Searching...");
+  const [loading, setLoading] = useState(false)
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const handleSearch = (data: SearchJobTypes) => {
+    setLoading(true)
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("search", data.query);
+    params.set("location", data.location);
+    params.set("type", data.jobType);
+    params.set("page", "1"); // reset page on new search
+    router.push(`/?${params.toString()}`);
+    setLoading(false)
   };
 
   const form = useForm({
@@ -24,8 +38,6 @@ export default function SearchCard() {
   });
 
   const { control } = form;
-
-  
 
   return (
     <Card className="w-full">
@@ -57,7 +69,7 @@ export default function SearchCard() {
             options={jobTypeOptions}
           />
 
-          <SubmitButton pending={false} className="w-full md:w-auto">
+          <SubmitButton pending={loading} className="w-full md:w-auto">
             Search Jobs
           </SubmitButton>
         </Form>

@@ -15,12 +15,38 @@ import { useForm } from "react-hook-form";
 import { Input } from "@/components/Input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, loginSchemaType } from "@/schemas/auth-schema";
+import { ErrorToast, SuccessToast } from "@/components/ui/sonner";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-  const handleSubmit = (data: loginSchemaType) => {
-    console.log(data);
+  const handleSubmit = async (data: loginSchemaType) => {
+    setLoading(true);
+
+    await signIn("credentials", {
+      email: data.email,
+      password: data.password,
+      redirect: false,
+    })
+      .then((callback) => {
+        if (callback?.error) {
+          ErrorToast(callback.error);
+          setLoading(false);
+        }
+
+        if (callback?.ok) {
+          SuccessToast("Logged in successfully");
+          setLoading(false);
+          router.replace("/dashboard");
+        }
+      })
+      .catch((error) => {
+        ErrorToast(error);
+        setLoading(false);
+      });
   };
 
   const form = useForm({

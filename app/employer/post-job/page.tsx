@@ -31,6 +31,7 @@ export default function PostJobPage() {
       location: "",
       type: "",
       description: "",
+      salary: "",
       lastDate: undefined,
     },
   });

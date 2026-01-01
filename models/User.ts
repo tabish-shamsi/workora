@@ -9,9 +9,9 @@ export type User = {
   company?: string;
   verificationToken: string | null;
   isVerified: boolean;
-  jobs?: mongoose.Types.ObjectId[];
-  applications?: mongoose.Types.ObjectId[];
-  resumes: mongoose.Types.ObjectId[];
+  // jobs?: mongoose.Types.ObjectId[];
+  // applications?: mongoose.Types.ObjectId[];
+  // resumes: mongoose.Types.ObjectId[];
 
   createdAt: Date;
   updatedAt: Date;
@@ -47,24 +47,24 @@ const userSchema = new mongoose.Schema<User>(
       type: Boolean,
       default: false,
     },
-    jobs: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Job",
-      },
-    ],
-    applications: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Application",
-      },
-    ],
-    resumes: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Resume",
-      },
-    ],
+    // jobs: [
+    //   {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: "Job",
+    //   },
+    // ],
+    // applications: [
+    //   {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: "Application",
+    //   },
+    // ],
+    // resumes: [
+    //   {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: "Resume",
+    //   },
+    // ],
   },
   { timestamps: true },
 );

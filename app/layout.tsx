@@ -4,6 +4,8 @@ import { Inter } from "next/font/google";
 import { Metadata } from "next";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
+import { Toaster } from "sonner";
+import AuthProvider from "@/context/AuthProvider";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -21,9 +23,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={inter.className}>
       <body className="antialiased">
-        <Header />
-        {children}
-        <Footer />
+        <AuthProvider>
+          <Toaster />
+          <Header />
+          {children}
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );

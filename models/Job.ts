@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 export type Job = {
   _id: string;
+  employer: mongoose.Types.ObjectId;
   title: string;
   company: string;
   location: string;
@@ -16,6 +17,11 @@ export type Job = {
 
 const jobSchema = new mongoose.Schema<Job>(
   {
+    employer: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     title: {
       type: String,
       required: true,

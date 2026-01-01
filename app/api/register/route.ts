@@ -13,13 +13,24 @@ export async function POST(req: NextRequest) {
     !accountType ||
     (accountType === "employer" && !company)
   ) {
-    return new Response("Missing required fields", { status: 400 });
+    return Response.json(
+      { error: "Missing required fields", success: false },
+      { status: 400 },
+    );
   }
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     await db();
+
+    const userExists = await UserModel.findOne({ email });
+    if (userExists)
+      return Response.json(
+        { error: "Entered email is already registered" },
+        { status: 400 },
+      );
+
     await UserModel.create({
       name,
       email,
@@ -28,11 +39,6 @@ export async function POST(req: NextRequest) {
       company,
     });
 
-    await fetch("/api/send-verify-email", {
-      method: "POST",
-      body: JSON.stringify({ email }),
-    })
-    
     return Response.json(
       { message: "Account Created!", success: true },
       { status: 201 },

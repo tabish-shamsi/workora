@@ -6,6 +6,6 @@ const searchJobSchema = z.object({
   jobType: z.string().min(1, "Job type is required").trim(),
 });
 
-export type SearchJobSchema = z.infer<typeof searchJobSchema>;
+export type SearchJobTypes = z.infer<typeof searchJobSchema>;
 
 export default searchJobSchema;

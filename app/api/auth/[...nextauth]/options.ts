@@ -20,7 +20,7 @@ const authOptions: AuthOptions = {
         await db();
         const user = await UserModel.findOne({
           email: credentials.email,
-        }).select("name email password _id isVerified");
+        }).select("name email password _id isVerified accountType");
 
         if (
           !user ||
@@ -34,6 +34,7 @@ const authOptions: AuthOptions = {
           name: user.name,
           email: user.email,
           isVerified: user.isVerified,
+          accountType: user.accountType,
         };
       },
     }),
@@ -55,6 +56,7 @@ const authOptions: AuthOptions = {
         token.name = user.name;
         token.email = user.email;
         token.isVerified = user.isVerified;
+        token.accountType = user.accountType;
       }
       return token;
     },
@@ -64,6 +66,7 @@ const authOptions: AuthOptions = {
         session.user.name = token.name;
         session.user.email = token.email;
         session.user.isVerified = token.isVerified;
+        session.user.accountType = token.accountType;
       }
       return session;
     },
