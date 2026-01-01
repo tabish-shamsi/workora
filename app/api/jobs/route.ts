@@ -15,27 +15,38 @@ export async function GET(req: Request) {
 
   const skip = (page - 1) * limit;
 
-  // 🔍 Build dynamic filter
-  const query: any = { status: "open" };
+  const query: any = {
+    status: "open",
+  };
 
+  // 🔍 TEXT SEARCH (handles spaces, relevance, typos better)
   if (search) {
-    query.$or = [
-      { title: { $regex: search, $options: "i" } },
-      { company: { $regex: search, $options: "i" } },
-    ];
+    query.$text = { $search: search };
   }
 
-  if (location) query.location = location;
-  if (type) query.type = type;
+  // 📍 Filters
+  if (location) {
+    query.location = { $regex: location, $options: "i" };
+  }
 
-  const [jobs, totalJobs] = await Promise.all([
-    Job.find(query)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .lean(),
-    Job.countDocuments(query),
-  ]);
+  if (type) {
+    query.jobType = type; // normalized enum (full-time, contract, etc.)
+  }
+
+  const jobs = await Job.find(
+    query,
+    search ? { score: { $meta: "textScore" } } : {},
+  )
+    .sort(
+      search
+        ? { score: { $meta: "textScore" }, createdAt: -1 }
+        : { createdAt: -1 },
+    )
+    .skip(skip)
+    .limit(limit)
+    .lean();
+
+  const totalJobs = await Job.countDocuments(query);
 
   return NextResponse.json({
     data: jobs,

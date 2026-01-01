@@ -1,7 +1,7 @@
 import db from "@/lib/db";
 import UserModel from "@/models/User";
 import bcrypt from "bcryptjs";
-import { AuthOptions } from "next-auth";
+import { AuthOptions, getServerSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 const authOptions: AuthOptions = {
@@ -47,7 +47,7 @@ const authOptions: AuthOptions = {
   },
   callbacks: {
     async jwt({ token, user, trigger, session }) {
-      if (trigger === "update" && session?.name) {
+      if (trigger === "update") {
         return { ...token, ...session.user };
       }
 
@@ -73,5 +73,11 @@ const authOptions: AuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
+
+export async function getSession() {
+  const session = await getServerSession(authOptions);
+
+  return session;
+}
 
 export default authOptions;

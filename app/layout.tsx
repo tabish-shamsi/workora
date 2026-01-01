@@ -13,7 +13,6 @@ export const metadata: Metadata = {
   title: "Workora – Lightweight Job Board",
   description:
     "Browse and post jobs easily with Workora, a simple and modern job board built with Next.js and Tailwind CSS.",
-  viewport: "width=device-width, initial-scale=1",
   icons: {
     icon: "/favicon.ico",
   },

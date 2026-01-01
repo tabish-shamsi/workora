@@ -4,19 +4,15 @@ import UserModel from "@/models/User";
 import { createTransporter } from "@/lib/nodemailer";
 import verificationEmail from "@/emails/verification";
 import { render } from "@react-email/components";
+import { getSession } from "../auth/[...nextauth]/options";
+import db from "@/lib/db";
 
 export async function POST(req: NextRequest) {
-  const { email } = await req.json();
+  const session = await getSession();
+  if (!session)
+    return Response.json({ message: "Unauthorized" }, { status: 401 });
 
-  if (!email)
-    return Response.json(
-      {
-        error: "Email address is required to send verification code",
-        success: false,
-      },
-      { status: 400 },
-    );
-
+  const email = session.user?.email;
   try {
     const verificationCode = Math.floor(100000 + Math.random() * 900000);
     // const verificationExpiry = new Date(Date.now() + 3600000); // 1 hour from now
@@ -27,8 +23,12 @@ export async function POST(req: NextRequest) {
       { expiresIn: "1h" },
     );
 
-    const user = await UserModel.findOneAndUpdate({ email }, { verificationToken });
-    if (!user) 
+    await db()
+    const user = await UserModel.findOneAndUpdate(
+      { email },
+      { verificationToken },
+    );
+    if (!user)
       return Response.json(
         {
           error: "User not found",
@@ -37,19 +37,19 @@ export async function POST(req: NextRequest) {
         { status: 404 },
       );
 
-        const transporter = createTransporter();
+    const transporter = createTransporter();
 
-        await transporter.sendMail({
-          from: `"Workora" <${process.env.EMAIL_USER}>`,
-          to: email,
-          subject: "Verify your Workora account",
-          html: await render(
-            verificationEmail({
-              username: user.name.split(" ")[0],
-              code: verificationCode.toString(),
-            }),
-          ),
-        });
+    await transporter.sendMail({
+      from: `"Workora" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Verify your Workora account",
+      html: await render(
+        verificationEmail({
+          username: user.name.split(" ")[0],
+          code: verificationCode.toString(),
+        }),
+      ),
+    });
 
     return Response.json(
       {
@@ -58,7 +58,6 @@ export async function POST(req: NextRequest) {
       },
       { status: 200 },
     );
-
   } catch (error) {
     console.error(error);
     return Response.json(

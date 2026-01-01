@@ -2,16 +2,27 @@ import db from "@/lib/db";
 import UserModel from "@/models/User";
 import jwt from "jsonwebtoken";
 import { NextRequest } from "next/server";
+import { getSession } from "../auth/[...nextauth]/options";
 
 export async function POST(req: NextRequest) {
-  const { email, code } = await req.json();
+  const { code } = await req.json();
 
-  if (!email || !code) {
+  if (!code) {
     return Response.json(
       { error: "Missing required fields", success: false },
       { status: 400 },
     );
   }
+
+  const session = await getSession();
+
+  if (!session) {
+    return Response.json(
+      { error: "Unauthorized", success: false },
+      { status: 401 },
+    );
+  }
+  const email = session.user?.email as string;
 
   try {
     await db();
@@ -39,9 +50,12 @@ export async function POST(req: NextRequest) {
     user.verificationToken = null;
     user.isVerified = true;
 
-    await user.save();
+    await user.save(); 
 
-    return Response.json({ success: true, message: "Email has been verified!" }, { status: 200 });
+    return Response.json(
+      { success: true, message: "Email has been verified!" },
+      { status: 200 },
+    );
   } catch (error) {
     console.error(error);
 

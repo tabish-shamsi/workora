@@ -9,9 +9,17 @@ import { jobTypeOptions } from "@/lib/constants";
 import SubmitButton from "@/components/submit-button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import postJobSchema, { PostJobSchemaType } from "@/schemas/post-job-schema";
+import { useSession } from "next-auth/react";
+import { redirect, useRouter } from "next/navigation";
 
 export default function PostJobPage() {
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  const { data: session } = useSession();
+
+  // authenticaiton check
+  if (session?.user?.accounType !== "employer") redirect("/");
 
   const handleSubmit = (data: PostJobSchemaType) => {
     setLoading(true);

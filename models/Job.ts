@@ -34,17 +34,17 @@ const jobSchema = new mongoose.Schema<Job>(
       type: String,
       required: true,
     },
-    jobType: {
-      type: String,
-      required: true,
-    },
     description: {
       type: String,
       required: true,
     },
+    jobType: {
+      type: String,
+      enum: ["full-time", "part-time", "contract", "internship"],
+    },
     status: {
       type: String,
-      required: true,
+      enum: ["open", "filled", "expired"],
       default: "open",
     },
     lastDate: {
@@ -64,6 +64,12 @@ const jobSchema = new mongoose.Schema<Job>(
   },
   { timestamps: true },
 );
+
+jobSchema.index({
+  title: "text",
+  company: "text",
+  description: "text",
+});
 
 const JobModel = mongoose.models.Job || mongoose.model("Job", jobSchema);
 export default JobModel;

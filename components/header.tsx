@@ -17,6 +17,8 @@ import {
   SheetTrigger,
 } from "./ui/sheet";
 import { Menu } from "lucide-react";
+import { signOut, useSession } from "next-auth/react";
+import { Button } from "./ui/button";
 
 type NavLink = {
   name: string;
@@ -25,6 +27,20 @@ type NavLink = {
 
 const NavItem = ({ href, name }: NavLink) => {
   const pathname = usePathname();
+  const { data: session } = useSession();
+
+  if (name === "Login" && session)
+    return (
+      <NavigationMenuItem asChild>
+        <Button
+          variant="link"
+          onClick={() => signOut()}
+          className="text-gray-900 hover:text-primary text-base font-medium hover:bg-muted"
+        >
+          Logout
+        </Button>
+      </NavigationMenuItem>
+    );
 
   return (
     <NavigationMenuItem asChild>

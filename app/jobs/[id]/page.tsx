@@ -2,8 +2,7 @@ import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { formatDistanceToNow, format } from "date-fns";
-import { mockJobs } from "@/temporary/mock-jobs";
+import { formatDistanceToNow, format } from "date-fns"; 
 import Link from "next/link";
 
 type JobDetailsPageProps = {
@@ -12,9 +11,14 @@ type JobDetailsPageProps = {
   }>;
 };
 
+const getJob = async (id: string) => {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/jobs/${id}`);
+  return res.json();
+};
+
 export default async function JobDetailsPage({ params }: JobDetailsPageProps) {
   const { id } = await params;
-  const job = mockJobs.find((job) => job.id === id);
+  const { job } = await getJob(id);
 
   if (!job) return notFound();
 
