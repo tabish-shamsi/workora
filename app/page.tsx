@@ -37,7 +37,7 @@ export default async function Home({
   }>;
 }) {
   const data = await getJobs(await searchParams);
-  
+
   return (
     <main className="space-y-8 ">
       <section className="bg-white">
@@ -76,10 +76,7 @@ export default async function Home({
         <section className="space-y-8">
           <JobList jobs={data.data} />
 
-          <Pagination
-            totalItems={data.pagination.totalJobs}
-            itemsPerPage={data.pagination.limit}
-          />
+          <Pagination totalItems={data.pagination.totalJobs} />
         </section>
       </div>
     </main>

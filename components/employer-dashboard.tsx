@@ -10,91 +10,50 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import JobModel, { Job } from "@/models/Job";
+import ApplicationModel from "@/models/Application";
+import { User } from "next-auth";
+import { formatDistanceToNow } from "date-fns";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import { Eye, FileText, Pencil } from "lucide-react";
 
-/* ---------------- Types ---------------- */
-
-type JobStatus = "Active" | "Filled" | "Expired";
-
-type Job = {
-  id: string;
-  title: string;
-  location: string;
-  type: string;
-  status: JobStatus;
-  postedAt: string;
-  applications: number;
+const getJobs = async (employerId: string) => {
+  const jobs = (await JobModel.find({ employer: employerId })) as Job[];
+  const applications = await ApplicationModel.find({ employer: employerId });
+  const totalApplications = applications.length;
+  return { jobs, totalApplications };
 };
 
-/* ---------------- Mock Jobs ---------------- */
+export default async function EmployerDashboard({ user }: { user: User }) {
+  const { jobs, totalApplications } = await getJobs(user.id ?? "");
 
-const jobs: Job[] = [
-  {
-    id: "1",
-    title: "Frontend Developer",
-    location: "Remote",
-    type: "Full-time",
-    status: "Active",
-    postedAt: "2 days ago",
-    applications: 18,
-  },
-  {
-    id: "2",
-    title: "Backend Engineer",
-    location: "Lahore",
-    type: "Onsite",
-    status: "Filled",
-    postedAt: "1 week ago",
-    applications: 42,
-  },
-  {
-    id: "3",
-    title: "UI/UX Designer",
-    location: "Remote",
-    type: "Contract",
-    status: "Expired",
-    postedAt: "3 weeks ago",
-    applications: 7,
-  },
-  {
-    id: "4",
-    title: "DevOps Engineer",
-    location: "Karachi",
-    type: "Full-time",
-    status: "Active",
-    postedAt: "5 days ago",
-    applications: 11,
-  },
-];
-
-/* ---------------- Stats ---------------- */
-
-const totalApplications = jobs.reduce((sum, job) => sum + job.applications, 0);
-
-const stats = [
-  { title: "Total Jobs", value: jobs.length },
-  {
-    title: "Active Jobs",
-    value: jobs.filter((j) => j.status === "Active").length,
-  },
-  { title: "Applications", value: totalApplications },
-  {
-    title: "Filled Jobs",
-    value: jobs.filter((j) => j.status === "Filled").length,
-  },
-];
-
-/* ---------------- Page ---------------- */
-
-export default function EmployerDashboard() {
+  const stats = [
+    { title: "Total Jobs", value: jobs.length },
+    {
+      title: "Active Jobs",
+      value: jobs.filter((j) => j.status === "open").length,
+    },
+    { title: "Applications", value: totalApplications },
+    {
+      title: "Filled Jobs",
+      value: jobs.filter((j) => j.status === "filled").length,
+    },
+  ];
   return (
     <section className="max-w-3/4 mx-auto space-y-8 mt-16">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Employer Dashboard</h1>
-        <Button asChild>
-          <Link href="/post-job">Post New Job</Link>
-        </Button>
-      </div>
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold">Welcome back, {user.name}</h1>
+              <p className="text-muted-foreground">
+                Track your Jobs and stay updated
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Stats */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -126,7 +85,6 @@ export default function EmployerDashboard() {
                 <TableHead>Location</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Applications</TableHead>
                 <TableHead>Posted</TableHead>
                 <TableHead className="text-right">Action</TableHead>
               </TableRow>
@@ -134,19 +92,21 @@ export default function EmployerDashboard() {
 
             <TableBody>
               {jobs.map((job) => (
-                <TableRow key={job.id}>
+                <TableRow key={job._id.toString()}>
                   <TableCell className="font-medium">{job.title}</TableCell>
 
                   <TableCell>{job.location}</TableCell>
 
-                  <TableCell>{job.type}</TableCell>
+                  <TableCell className="capitalize">
+                    {job.jobType.split("-").join(" ")}
+                  </TableCell>
 
-                  <TableCell>
+                  <TableCell className="capitalize">
                     <Badge
                       variant={
-                        job.status === "Active"
+                        job.status === "open"
                           ? "default"
-                          : job.status === "Filled"
+                          : job.status === "filled"
                             ? "secondary"
                             : "destructive"
                       }
@@ -156,21 +116,48 @@ export default function EmployerDashboard() {
                   </TableCell>
 
                   <TableCell>
-                    {job.applications === 0 ? (
-                      <span className="text-muted-foreground">
-                        No applications
-                      </span>
-                    ) : (
-                      <span className="font-semibold">{job.applications}</span>
-                    )}
+                    {formatDistanceToNow(job.createdAt, { addSuffix: true })}
                   </TableCell>
 
-                  <TableCell>{job.postedAt}</TableCell>
-
                   <TableCell className="text-right">
-                    <Button size="sm" variant="outline">
-                      View
-                    </Button>
+                    
+                      <div className="flex justify-end gap-1">
+                        {/* View Job */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button size="icon" asChild>
+                              <Link href={`/jobs/${job._id.toString()}`}>
+                                <Eye className="h-4 w-4" />
+                              </Link>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>View job details</TooltipContent>
+                        </Tooltip>
+
+                        {/* View Applications */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button size="icon" asChild>
+                              <Link href={`/jobs/${job._id.toString()}/applications`}>
+                                <FileText className="h-4 w-4" />
+                              </Link>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>View applications</TooltipContent>
+                        </Tooltip>
+
+                        {/* Edit Job */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button size="icon" asChild>
+                              <Link href={`/jobs/${job._id.toString()}/edit`}>
+                                <Pencil className="h-4 w-4" />
+                              </Link>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Edit job</TooltipContent>
+                        </Tooltip>
+                      </div> 
                   </TableCell>
                 </TableRow>
               ))}

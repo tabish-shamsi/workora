@@ -1,6 +1,8 @@
 import { User } from "next-auth";
 import { getSession } from "../api/auth/[...nextauth]/options";
 import CandidateDashboard from "@/components/candidate-dashboard";
+import EmployerDashboard from "@/components/employer-dashboard";
+import { notFound } from "next/navigation";
 
 export default async function DashboardPage() {
   const session = await getSession();
@@ -15,5 +17,9 @@ export default async function DashboardPage() {
     return <CandidateDashboard candidateId={user.id ?? ""} />;
   }
 
-  return <div>DashboardPage</div>;
+  if (isEmployer) {
+    return <EmployerDashboard user={user} />;
+  }
+
+  return notFound();
 }

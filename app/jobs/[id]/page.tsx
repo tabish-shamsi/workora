@@ -21,6 +21,7 @@ export default async function JobDetailsPage({ params }: JobDetailsPageProps) {
   );
 
   let alreadyApplied = false;
+  let application: any;
 
   if (session) {
     const res = await axios.get(
@@ -29,6 +30,7 @@ export default async function JobDetailsPage({ params }: JobDetailsPageProps) {
 
     if (res.data.applications.length > 0) {
       alreadyApplied = true;
+      application = res.data.applications[0];
     }
   }
 
@@ -48,20 +50,25 @@ export default async function JobDetailsPage({ params }: JobDetailsPageProps) {
       );
     }
 
+    if (alreadyApplied) {
+      return (
+        <Button variant="secondary">
+          <Link href={`/dashboard/applications/${application._id}`}>
+            View Application
+          </Link>
+        </Button>
+      );
+    }
+
     if (!isEmployer) {
       const isClosed = status !== "open";
-
       return (
         <Link href={`/jobs/${id}/apply`}>
           <Button
-            variant={alreadyApplied || isClosed ? "secondary" : "default"}
+            variant={isClosed ? "secondary" : "default"}
             disabled={isClosed}
           >
-            {alreadyApplied
-              ? "View Application"
-              : isClosed
-                ? "Applications Closed"
-                : "Apply Now"}
+            {isClosed ? "Applications Closed" : "Apply Now"}
           </Button>
         </Link>
       );

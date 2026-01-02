@@ -6,6 +6,8 @@ import { format } from "date-fns";
 import { Clock, FileText, Mail, User } from "lucide-react";
 import { Job } from "@/models/Job";
 import { Resume } from "@/models/Resume";
+import Link from "next/link";
+import { Button } from "./ui/button";
 
 type ApplicationType = Application & {
   job: Job;
@@ -48,21 +50,23 @@ export default function ApplicationCard({
       <CardContent className="space-y-3 pt-4">
         <div className="flex items-center justify-between text-sm">
           <span className="text-muted-foreground">Job Title</span>
-          <span className="font-mono">{application.job.title}</span>
+
+          <Link href={`/jobs/${application.job._id}`}>
+            <Button variant="link" className="font-mono hover:underline px-0">
+              {application.job.title}
+            </Button>
+          </Link>
         </div>
 
         <div className="flex items-center justify-between text-sm">
           <span className="text-muted-foreground flex items-center gap-2">
             <FileText className="h-4 w-4" /> Resume
           </span>
-          <a
-            href={application.resume.url}
-            className="font-mono  hover:underline"
-            target="_blank"
-            title="Download Resume"
-          >
-            {application.resume.fileName}
-          </a>
+          <Link target="_blank" href={application.resume.url}>
+            <Button variant="link" className="font-mono hover:underline px-0">
+              {application.resume.fileName}
+            </Button>
+          </Link>
         </div>
 
         <div className="flex items-center justify-between text-sm">

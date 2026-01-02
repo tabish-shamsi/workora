@@ -11,11 +11,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import axios from "axios";
-import { FileSearch, Share, SquarePen, Trash } from "lucide-react";
+import { FileSearch, MinusCircle, Share, SquarePen, Trash } from "lucide-react";
 import { Application } from "@/models/Application";
 import { Job } from "@/models/Job";
 import { formatDistanceToNow } from "date-fns";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import { getSession } from "@/app/api/auth/[...nextauth]/options";
+import { notFound } from "next/navigation";
 
 type ApplicationType = Application & {
   job: Job;
@@ -36,19 +38,29 @@ export default async function CandidateDashboard({
 }: {
   candidateId: string;
 }) {
-  const { applications, pagination } = await getApplications(candidateId);
+  const { applications } = await getApplications(candidateId);
+  const session = await getSession();
+  if (!session) return notFound();
 
   if (applications.length == 0) return noApplications();
 
   return (
     <section className="container py-10 space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">My Applications</h1>
-        <p className="text-muted-foreground">
-          Track all the jobs you’ve applied to
-        </p>
-      </div>
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold">
+                Welcome back, {session.user.name}
+              </h1>
+              <p className="text-muted-foreground">
+                Track your applications and stay updated
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Stats */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -181,8 +193,8 @@ function renderActions(applicationId: string, jobId: string) {
   return (
     <div className="flex items-center justify-center gap-2">
       <Tooltip>
-        <TooltipTrigger>
-          <Link href={`/jobs/${jobId}/applications/${applicationId}`}>
+        <TooltipTrigger asChild>
+          <Link href={`/dashboard/applications/${applicationId}`}>
             <Button size="sm">
               <Share />
             </Button>
@@ -192,7 +204,7 @@ function renderActions(applicationId: string, jobId: string) {
       </Tooltip>
 
       <Tooltip>
-        <TooltipTrigger>
+        <TooltipTrigger asChild>
           <Link href={`/jobs/${jobId}/applications/${applicationId}/edit`}>
             <Button size="sm">
               <SquarePen />
@@ -203,7 +215,7 @@ function renderActions(applicationId: string, jobId: string) {
       </Tooltip>
 
       <Tooltip>
-        <TooltipTrigger>
+        <TooltipTrigger asChild>
           <Button size="sm">
             <Trash />
           </Button>
