@@ -23,8 +23,8 @@ export async function GET(req: NextRequest) {
   }
 
   const applications = await ApplicationModel.find(query)
-    .populate({ path: "job", select: "title company location jobType" })
-    .populate({ path: "resume", select: "fileName url" })
+    .populate({ path: "job", select: "title company location jobType createdAt" })
+    .populate({ path: "resume", select: "fileName url" }) 
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit)

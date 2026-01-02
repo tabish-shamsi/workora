@@ -11,10 +11,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import axios from "axios";
-import { FileSearch } from "lucide-react";
+import { FileSearch, Share, SquarePen, Trash } from "lucide-react";
 import { Application } from "@/models/Application";
 import { Job } from "@/models/Job";
 import { formatDistanceToNow } from "date-fns";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 type ApplicationType = Application & {
   job: Job;
@@ -70,7 +71,7 @@ export default async function CandidateDashboard({
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold">
-              {applications.filter((a) => a.status === "Pending").length}
+              {applications.filter((a) => a.status === "pending").length}
             </p>
           </CardContent>
         </Card>
@@ -78,12 +79,12 @@ export default async function CandidateDashboard({
         <Card>
           <CardHeader>
             <CardTitle className="text-sm text-muted-foreground">
-              Shortlisted
+              Accepted
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold">
-              {applications.filter((a) => a.status === "Shortlisted").length}
+              {applications.filter((a) => a.status === "accepted").length}
             </p>
           </CardContent>
         </Card>
@@ -96,7 +97,7 @@ export default async function CandidateDashboard({
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold">
-              {applications.filter((a) => a.status === "Rejected").length}
+              {applications.filter((a) => a.status === "rejected").length}
             </p>
           </CardContent>
         </Card>
@@ -135,8 +136,12 @@ export default async function CandidateDashboard({
                   </TableCell>
 
                   <TableCell>{app.job.company}</TableCell>
-                  <TableCell className="capitalize">{app.job.location}</TableCell>
-                  <TableCell className="capitalize">{app.job.jobType.split("-").join(" ")}</TableCell>
+                  <TableCell className="capitalize">
+                    {app.job.location}
+                  </TableCell>
+                  <TableCell className="capitalize">
+                    {app.job.jobType.split("-").join(" ")}
+                  </TableCell>
 
                   <TableCell>
                     <Badge
@@ -155,12 +160,12 @@ export default async function CandidateDashboard({
                     </Badge>
                   </TableCell>
 
-                  <TableCell>{formatDistanceToNow(app.createdAt, {addSuffix: true})}</TableCell>
+                  <TableCell>
+                    {formatDistanceToNow(app.createdAt, { addSuffix: true })}
+                  </TableCell>
 
                   <TableCell className="text-right">
-                    <Button size="sm" variant="outline">
-                      View
-                    </Button>
+                    {renderActions(app._id.toString(), app.job._id.toString())}
                   </TableCell>
                 </TableRow>
               ))}
@@ -169,6 +174,43 @@ export default async function CandidateDashboard({
         </CardContent>
       </Card>
     </section>
+  );
+}
+
+function renderActions(applicationId: string, jobId: string) {
+  return (
+    <div className="flex items-center justify-center gap-2">
+      <Tooltip>
+        <TooltipTrigger>
+          <Link href={`/jobs/${jobId}/applications/${applicationId}`}>
+            <Button size="sm">
+              <Share />
+            </Button>
+          </Link>
+        </TooltipTrigger>
+        <TooltipContent>View Application</TooltipContent>
+      </Tooltip>
+
+      <Tooltip>
+        <TooltipTrigger>
+          <Link href={`/jobs/${jobId}/applications/${applicationId}/edit`}>
+            <Button size="sm">
+              <SquarePen />
+            </Button>
+          </Link>
+        </TooltipTrigger>
+        <TooltipContent>Edit Application</TooltipContent>
+      </Tooltip>
+
+      <Tooltip>
+        <TooltipTrigger>
+          <Button size="sm">
+            <Trash />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>Withdraw Application</TooltipContent>
+      </Tooltip>
+    </div>
   );
 }
 
