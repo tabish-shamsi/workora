@@ -1,6 +1,3 @@
-"use client";
-
-import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -13,68 +10,34 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import axios from "axios";
+import { FileSearch } from "lucide-react";
+import { Application } from "@/models/Application";
+import { Job } from "@/models/Job";
+import { formatDistanceToNow } from "date-fns";
 
-/* ---------------- Mock Data ---------------- */
-
-type CandidateApplicationStatus =
-  | "Pending"
-  | "Reviewed"
-  | "Shortlisted"
-  | "Rejected";
-
-type CandidateApplication = {
-  id: string;
-  jobTitle: string;
-  company: string;
-  location: string;
-  type: string;
-  status: CandidateApplicationStatus;
-  appliedAt: string;
+type ApplicationType = Application & {
+  job: Job;
 };
 
-const applications: CandidateApplication[] = [
-  {
-    id: "1",
-    jobTitle: "Frontend Developer",
-    company: "TechCorp",
-    location: "Remote",
-    type: "Full-time",
-    status: "Pending",
-    appliedAt: "2 days ago",
-  },
-  {
-    id: "2",
-    jobTitle: "Backend Engineer",
-    company: "Appverse",
-    location: "Lahore",
-    type: "Onsite",
-    status: "Reviewed",
-    appliedAt: "1 week ago",
-  },
-  {
-    id: "3",
-    jobTitle: "UI/UX Designer",
-    company: "DesignHub",
-    location: "Remote",
-    type: "Contract",
-    status: "Shortlisted",
-    appliedAt: "3 weeks ago",
-  },
-  {
-    id: "4",
-    jobTitle: "DevOps Engineer",
-    company: "CloudOps",
-    location: "Karachi",
-    type: "Full-time",
-    status: "Rejected",
-    appliedAt: "5 days ago",
-  },
-];
+const getApplications = async (candidateId: string) => {
+  const res = await axios.get(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/applications?candidate=${candidateId}`,
+  );
+  return {
+    applications: res.data.applications as ApplicationType[],
+    pagination: res.data.pagination,
+  };
+};
 
-/* ---------------- Page ---------------- */
+export default async function CandidateDashboard({
+  candidateId,
+}: {
+  candidateId: string;
+}) {
+  const { applications, pagination } = await getApplications(candidateId);
 
-export default function CandidateDashboardPage() {
-  const [apps, setApps] = useState(applications);
+  if (applications.length == 0) return noApplications();
 
   return (
     <section className="container py-10 space-y-8">
@@ -95,7 +58,7 @@ export default function CandidateDashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">{apps.length}</p>
+            <p className="text-3xl font-bold">{applications.length}</p>
           </CardContent>
         </Card>
 
@@ -107,7 +70,7 @@ export default function CandidateDashboardPage() {
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold">
-              {apps.filter((a) => a.status === "Pending").length}
+              {applications.filter((a) => a.status === "Pending").length}
             </p>
           </CardContent>
         </Card>
@@ -120,7 +83,7 @@ export default function CandidateDashboardPage() {
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold">
-              {apps.filter((a) => a.status === "Shortlisted").length}
+              {applications.filter((a) => a.status === "Shortlisted").length}
             </p>
           </CardContent>
         </Card>
@@ -133,7 +96,7 @@ export default function CandidateDashboardPage() {
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold">
-              {apps.filter((a) => a.status === "Rejected").length}
+              {applications.filter((a) => a.status === "Rejected").length}
             </p>
           </CardContent>
         </Card>
@@ -160,38 +123,39 @@ export default function CandidateDashboardPage() {
             </TableHeader>
 
             <TableBody>
-              {apps.map((app) => (
-                <TableRow key={app.id}>
+              {applications.map((app) => (
+                <TableRow key={app._id.toString()}>
                   <TableCell>
                     <Link
-                      href={`/jobs/${app.id}`}
+                      href={`/jobs/${app._id.toString()}`}
                       className="font-medium underline"
                     >
-                      {app.jobTitle}
+                      {app.job.title}
                     </Link>
                   </TableCell>
 
-                  <TableCell>{app.company}</TableCell>
-                  <TableCell>{app.location}</TableCell>
-                  <TableCell>{app.type}</TableCell>
+                  <TableCell>{app.job.company}</TableCell>
+                  <TableCell className="capitalize">{app.job.location}</TableCell>
+                  <TableCell className="capitalize">{app.job.jobType.split("-").join(" ")}</TableCell>
 
                   <TableCell>
                     <Badge
                       variant={
-                        app.status === "Pending"
+                        app.status === "pending"
                           ? "secondary"
                           : app.status === "Reviewed"
                             ? "default"
-                            : app.status === "Shortlisted"
+                            : app.status === "accepted"
                               ? "outline"
                               : "destructive"
                       }
+                      className="capitalize"
                     >
                       {app.status}
                     </Badge>
                   </TableCell>
 
-                  <TableCell>{app.appliedAt}</TableCell>
+                  <TableCell>{formatDistanceToNow(app.createdAt, {addSuffix: true})}</TableCell>
 
                   <TableCell className="text-right">
                     <Button size="sm" variant="outline">
@@ -205,5 +169,26 @@ export default function CandidateDashboardPage() {
         </CardContent>
       </Card>
     </section>
+  );
+}
+
+function noApplications() {
+  return (
+    <div className="flex flex-col items-center justify-center py-20 text-center">
+      <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+        <FileSearch className="h-8 w-8 text-muted-foreground" />
+      </div>
+
+      <h2 className="text-xl font-semibold">No applications found</h2>
+
+      <p className="mt-2 max-w-md text-sm text-muted-foreground">
+        You haven’t applied to any jobs yet. Once you start applying, your
+        applications will appear here so you can track their status.
+      </p>
+
+      <Button asChild className="mt-6">
+        <Link href="/">Browse Jobs</Link>
+      </Button>
+    </div>
   );
 }

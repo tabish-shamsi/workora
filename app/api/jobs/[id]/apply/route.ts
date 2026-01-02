@@ -4,6 +4,10 @@ import { NextRequest } from "next/server";
 import { getSession } from "../../../auth/[...nextauth]/options";
 import JobModel from "@/models/Job";
 import { revalidatePath } from "next/cache";
+import { createTransporter } from "@/lib/nodemailer";
+import { render } from "@react-email/components";
+import ApplicationSubmittedEmail from "@/emails/application";
+import Resume from "@/models/Resume";
 
 export async function POST(
   req: NextRequest,
@@ -43,7 +47,11 @@ export async function POST(
       );
     }
 
-    const job = await JobModel.findById(jobId).select("_id");
+    const job = await JobModel.findById(jobId).populate({
+      path: "employer",
+      select: "name email",
+    });
+
     if (!job) {
       return Response.json(
         {
@@ -68,7 +76,7 @@ export async function POST(
       );
     }
 
-    await ApplicationModel.create({
+    const application = await ApplicationModel.create({
       candidate: user.id,
       job: jobId,
       coverLetter,
@@ -77,7 +85,41 @@ export async function POST(
       resume,
     });
 
-    revalidatePath(`/jobs/${jobId}`)
+    if (!application) {
+      return Response.json(
+        {
+          success: false,
+          error: "Something went wrong, please try again later.",
+        },
+        { status: 500 },
+      );
+    }
+
+    const candidateResume = await Resume.findById(resume).select("url");
+
+    const transporter = createTransporter();
+    const emailHtml = await render(
+      ApplicationSubmittedEmail({
+        applicantName: name,
+        applicantEmail: email,
+        employerName: job.employer.name,
+        jobTitle: job.title,
+        companyName: job.company,
+        appliedDate: new Date().toLocaleDateString(),
+        dashboardUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/dashbaord/applications/${application._id}`,
+        resumeUrl: candidateResume.url,
+        coverLetter: coverLetter,
+      }),
+    );
+
+    await transporter.sendMail({
+      from: `"Workora" <${process.env.EMAIL}>`,
+      to: job.employer.email,
+      subject: `New application for ${job.title}`,
+      html: emailHtml,
+    });
+
+    revalidatePath(`/jobs/${jobId}`);
 
     return Response.json(
       { message: "Application submitted successfully" },

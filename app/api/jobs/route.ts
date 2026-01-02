@@ -51,7 +51,7 @@ export async function GET(req: Request) {
     data: jobs,
     pagination: {
       totalJobs,
-      totalPages: Math.ceil(totalJobs / limit),
+      limit: Math.ceil(totalJobs / limit),
       currentPage: page,
     },
   });

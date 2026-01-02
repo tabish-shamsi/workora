@@ -3,6 +3,7 @@ import Pagination from "@/components/pagination";
 import SearchCard from "@/components/search-card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { getSession } from "@/app/api/auth/[...nextauth]/options";
 
 async function getJobs(params: {
   page?: string;
@@ -36,7 +37,7 @@ export default async function Home({
   }>;
 }) {
   const data = await getJobs(await searchParams);
-
+  
   return (
     <main className="space-y-8 ">
       <section className="bg-white">

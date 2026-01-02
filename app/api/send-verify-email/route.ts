@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     // const transporter = createTransporter();
 
     // await transporter.sendMail({
-    //   from: `"Workora" <${process.env.EMAIL_USER}>`,
+    //   from: `"Workora" <${process.env.EMAIL}>`,
     //   to: email,
     //   subject: "Verify your Workora account",
     //   html: await render(

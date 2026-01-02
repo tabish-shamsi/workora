@@ -30,13 +30,20 @@ export default async function ApplyJobPage({
 }) {
   const session = await getSession();
   if (!session || session.user?.accountType !== "candidate") {
-    throw new Error("Unauthorized");
+    return (
+      <section className="container py-10">
+        <h1 className="text-3xl font-bold">Unauthorized</h1>
+        <p className="text-muted-foreground">
+          You are not authorized to view this page.
+        </p>
+      </section>
+    );
   }
 
   const { id } = await params; // JobId from params
   const application = await getApplication(id, session.user.id);
   const job = await getJob(id);
-  
+
   return (
     <section className="container py-10">
       {/* Job Header */}
@@ -87,7 +94,14 @@ export default async function ApplyJobPage({
               <span className="text-muted-foreground flex items-center gap-2">
                 <FileText className="h-4 w-4" /> Resume
               </span>
-              <span className="font-mono">{application.resume.fileName}</span>
+              <a
+                href={application.resume.url}
+                className="font-mono  hover:underline"
+                target="_blank"
+                title="Download Resume"
+              >
+                {application.resume.fileName}
+              </a>
             </div>
 
             <div className="flex items-center justify-between text-sm">

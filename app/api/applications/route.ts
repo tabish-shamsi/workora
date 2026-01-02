@@ -23,8 +23,8 @@ export async function GET(req: NextRequest) {
   }
 
   const applications = await ApplicationModel.find(query)
-    .populate({ path: "job", select: "title" })
-    .populate({ path: "resume", select: "fileName" })
+    .populate({ path: "job", select: "title company location jobType" })
+    .populate({ path: "resume", select: "fileName url" })
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit)
@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
     pagination: {
       totalApplications,
       totalPages: Math.ceil(totalApplications / limit),
-      currentPage: page,
+      currentPage: page, 
     },
   });
 }
