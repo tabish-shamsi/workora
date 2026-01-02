@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
 export type Resume = {
+  _id: mongoose.Types.ObjectId;
   candidate: mongoose.Types.ObjectId;
   url: string;
   fileName: string;
@@ -12,7 +13,7 @@ export type Resume = {
 const resumeSchema = new mongoose.Schema<Resume>({
   candidate: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Cadidate",
+    ref: "User",
     required: true,
   },
   url: {

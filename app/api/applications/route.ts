@@ -1,0 +1,46 @@
+import db from "@/lib/db";
+import ApplicationModel from "@/models/Application";
+import { NextRequest } from "next/server";
+
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const candidate = searchParams.get("candidate");
+  const job = searchParams.get("job");
+  const page = Number(searchParams.get("page")) || 1;
+  const limit = Number(searchParams.get("limit")) || 6;
+  const skip = (page - 1) * limit;
+
+  await db();
+
+  let query;
+
+  if (candidate) {
+    query = { candidate };
+  }
+
+  if (job) {
+    query = { ...query, job };
+  }
+
+  const applications = await ApplicationModel.find(query)
+    .populate({ path: "job", select: "title" })
+    .populate({ path: "resume", select: "fileName" })
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit)
+    .lean();
+
+  const totalApplications = await ApplicationModel.countDocuments({
+    candidate,
+    job,
+  });
+
+  return Response.json({
+    applications,
+    pagination: {
+      totalApplications,
+      totalPages: Math.ceil(totalApplications / limit),
+      currentPage: page,
+    },
+  });
+}

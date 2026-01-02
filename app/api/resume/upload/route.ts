@@ -1,13 +1,12 @@
 import db from "@/lib/db";
 import imagekit from "@/lib/imagekit";
-import Resume from "@/models/Resume";
-import UserModel from "@/models/User";
+import Resume from "@/models/Resume"; 
 import { NextRequest } from "next/server";
+import { getSession } from "../../auth/[...nextauth]/options";
 
 export async function POST(req: NextRequest) {
   const formdata = await req.formData();
   const file = formdata.get("file") as File;
-  const userId = formdata.get("userId") as string;
 
   if (!file) {
     return Response.json(
@@ -17,17 +16,25 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    await db()
-    const user = await UserModel.findById(userId).select("accountType");
-
-    if (!user) {
-      return Response.json({ error: "User not found" }, { status: 404 });
+    const session = await getSession();
+    if (!session) {
+      return Response.json(
+        {
+          success: false,
+          error: "Unauthorized",
+        },
+        { status: 401 },
+      );
     }
 
+    const { user } = session;
     if (user.accountType !== "candidate") {
       return Response.json(
-        { error: "Only candidate can upload resumes" },
-        { status: 400 },
+        {
+          success: false,
+          error: "Only candidates can see their resume",
+        },
+        { status: 401 },
       );
     }
 
@@ -46,14 +53,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    await Resume.create({
-      candidate: userId,
+    await db();
+
+    const resume = await Resume.create({
+      candidate: user.id,
       url: res.url,
       fileName: file.name,
       fileId: res.fileId,
     });
 
-    return Response.json({ message: "Resume uploaded Successfully!" });
+    return Response.json({ message: "Resume uploaded Successfully!", resume });
   } catch (error) {
     console.error(error);
     return Response.json(

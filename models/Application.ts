@@ -9,6 +9,7 @@ export type Application = {
   resume: mongoose.Types.ObjectId;
   status: string;
   createdAt: Date;
+  coverLetter: string;
 };
 
 const applicationSchema = new mongoose.Schema<Application>({
@@ -34,6 +35,9 @@ const applicationSchema = new mongoose.Schema<Application>({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Resume",
     required: true,
+  },
+  coverLetter: {
+    type: String,
   },
   status: {
     type: String,

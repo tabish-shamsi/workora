@@ -18,5 +18,5 @@ export async function GET(
     );
   }
 
-  return Response.json({ success: true, job }, { status: 200 });
+  return Response.json(job);
 }

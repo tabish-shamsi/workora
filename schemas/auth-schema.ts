@@ -1,31 +1,38 @@
-import z from "zod";
+import { z } from "zod";
 
 // Login form validation
 export const loginSchema = z.object({
-  email: z.email(),
+  email: z.string().email(),
   password: z.string().min(1, "Password is required"),
 });
 
 export type loginSchemaType = z.infer<typeof loginSchema>;
 
-// Register form validation
-export const registerSchema = z.object({
-  name: z.string().min(2, {
-    message: "Name must be at least 2 characters",
-  }),
-  company: z.string().min(2, {
-    message: "Company name is required",
-  }),
-  email: z.string().email({
-    message: "Please enter a valid email address",
-  }),
-  password: z.string().min(6, {
-    message: "Password must be at least 6 characters",
-  }),
-  accountType: z.startsWith("Select Account Type", {
-    message: "Please select an account type",
+export const registerSchema = z
+  .object({
+    name: z.string().min(2, {
+      message: "Name must be at least 2 characters",
+    }),
+    company: z.string().optional(),
+    email: z.string().email({
+      message: "Please enter a valid email address",
+    }),
+    password: z.string().min(6, {
+      message: "Password must be at least 6 characters",
+    }),
+    accountType: z.enum(["employer", "candidate"], {
+      message: "Please select an account type",
+    }),
   })
-});
+  .superRefine((data, ctx) => {
+    if (data.accountType === "employer" && !data.company?.trim()) {
+      ctx.addIssue({
+        path: ["company"],
+        message: "Company name is required for employers",
+        code: "custom",
+      });
+    }
+  });
 
 export type registerSchemaType = z.infer<typeof registerSchema>;
 

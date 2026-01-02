@@ -4,7 +4,6 @@ import Job from "@/models/Job";
 
 export async function GET(req: Request) {
   await connectDB();
-
   const { searchParams } = new URL(req.url);
 
   const page = Number(searchParams.get("page")) || 1;

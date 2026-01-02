@@ -2,19 +2,12 @@ import db from "@/lib/db";
 import JobModel from "@/models/Job";
 import UserModel from "@/models/User";
 import { NextRequest } from "next/server";
+import { getSession } from "../../auth/[...nextauth]/options";
+import { revalidatePath } from "next/cache";
 
 export async function POST(req: NextRequest) {
-  const {
-    title,
-    company,
-    location,
-    type,
-    description,
-    lastDate,
-    employerId,
-    salary,
-  } = await req.json();
-
+  const { title, company, location, type, description, lastDate, salary } =
+    await req.json();
   if (
     !title ||
     !company ||
@@ -22,7 +15,6 @@ export async function POST(req: NextRequest) {
     !type ||
     !description ||
     !lastDate ||
-    !employerId ||
     !salary
   ) {
     return Response.json(
@@ -32,18 +24,16 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    await db();
-    const user = await UserModel.findById(employerId);
-    if (!user) {
-      return Response.json({ error: "User not found" }, { status: 404 });
-    }
-
-    if (user.accountType !== "employer") {
+    const session = await getSession();
+    if (!session)
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    if (session.user?.accountType !== "employer")
       return Response.json(
-        { error: "Only employer can post a job" },
-        { status: 400 },
+        { error: "Only employer can post a job." },
+        { status: 401 },
       );
-    }
+
+    await db();
 
     await JobModel.create({
       title,
@@ -52,11 +42,16 @@ export async function POST(req: NextRequest) {
       jobType: type,
       description,
       lastDate,
-      employer: employerId,
+      employer: session.user.id,
       salary: salary,
     });
 
-    return Response.json({ success: true, message: "Job has been posted!" }, {status: 201});
+    revalidatePath("/")
+
+    return Response.json(
+      { success: true, message: "Job has been posted!" },
+      { status: 201 },
+    );
   } catch (error) {
     console.error(error);
     return Response.json({ error: "Something went wrong" }, { status: 500 });

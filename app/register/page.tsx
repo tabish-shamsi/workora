@@ -15,9 +15,14 @@ import Form from "@/components/Form";
 import { Input } from "@/components/Input";
 import SubmitButton from "@/components/submit-button";
 import { useState } from "react";
+import axios, { AxiosError } from "axios";
+import { ErrorToast, SuccessToast } from "@/components/ui/sonner";
+import { signIn } from "next-auth/react"; 
+import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
+  const router = useRouter()
 
   const form = useForm({
     resolver: zodResolver(registerSchema),
@@ -26,12 +31,33 @@ export default function RegisterPage() {
       company: "",
       email: "",
       password: "",
-      accountType: "",
+      accountType: undefined,
     },
   });
 
   const handleSubmit = async (data: registerSchemaType) => {
-    console.log("Register data:", data);
+    setLoading(true);
+    try {
+      const registerUser = await axios.post("/api/register", data);
+      SuccessToast(registerUser.data.message);
+
+      const signInUser = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      });
+      if (signInUser?.error) ErrorToast(signInUser.error);
+
+      const sendCode = await axios.post("/api/send-verify-email");
+      SuccessToast(sendCode.data.message);
+      router.replace("/verify-email");
+    } catch (error) {
+      console.log(error);
+      if (error instanceof AxiosError) ErrorToast(error?.response?.data.error);
+      else ErrorToast("Something went wrong, please try again later");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const accountType = form.watch("accountType");
@@ -78,7 +104,7 @@ export default function RegisterPage() {
               name="accountType"
               label="Account Type"
               type="select"
-              options={["cadidate", "employer"]}
+              options={["candidate", "employer"]}
               className="select:w-full"
             />
 

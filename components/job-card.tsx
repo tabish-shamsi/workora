@@ -39,6 +39,7 @@ export default function JobCard({ job }: { job: Job }) {
         </div>
 
         <p className="text-sm text-gray-500">{job.location}</p>
+        <Badge variant="outline">{job.salary}</Badge>
       </CardHeader>
 
       <CardContent>

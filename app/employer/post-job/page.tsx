@@ -8,27 +8,28 @@ import Form from "@/components/Form";
 import { jobTypeOptions } from "@/lib/constants";
 import SubmitButton from "@/components/submit-button";
 import { zodResolver } from "@hookform/resolvers/zod";
-import postJobSchema, { PostJobSchemaType } from "@/schemas/post-job-schema";
-import { useSession } from "next-auth/react";
-import { redirect, useRouter } from "next/navigation";
+import postJobSchema, { PostJobSchemaType } from "@/schemas/post-job-schema"; 
+import { useRouter } from "next/navigation";
+import { ErrorToast, SuccessToast } from "@/components/ui/sonner";
+import axios, { AxiosError } from "axios";
 
 export default function PostJobPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const { data: session } = useSession();
-
-  // authenticaiton check
-  if (session?.user?.accounType !== "employer") redirect("/");
-
-  const handleSubmit = (data: PostJobSchemaType) => {
-    setLoading(true);
-    setTimeout(() => {
+  const handleSubmit = async (data: PostJobSchemaType) => {
+    try {
+      setLoading(true);
+      const res = await axios.post("/api/jobs/post", data);
+      SuccessToast(res.data.message);
+      router.push("/");
+    } catch (error) {
+      console.log(error);
+      if (error instanceof AxiosError) ErrorToast(error?.response?.data.error);
+      else ErrorToast("Something went wrong, please try again later");
+    } finally {
       setLoading(false);
-      console.log(data);
-    }, 2000);
-    console.log(data);
-    alert("Job posted successfully!");
+    }
   };
 
   const form = useForm({

@@ -1,83 +1,129 @@
-"use client";
-
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { getSession } from "@/app/api/auth/[...nextauth]/options";
+import ApplyJobForm from "@/components/applyjob-form";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import applyJobSchema, { ApplyJobSchemaType } from "@/schemas/apply-job-schema";
-import Form from "@/components/Form";
-import { Input } from "@/components/Input";
-import SubmitButton from "@/components/submit-button";
-import FileInput from "@/components/file-input";
+import { Separator } from "@/components/ui/separator";
+import axios from "axios";
+import { format, formatDistanceToNow } from "date-fns";
+import { Clock, FileText, Mail, User } from "lucide-react";
 
-export default function ApplyJobPage() {
-  const [loading, setLoading] = useState(false);
+const getApplication = async (jobId: string, userId: string) => {
+  const { data } = await axios.get(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/applications?job=${jobId}&candidate=${userId}`,
+  );
 
-  const form = useForm<ApplyJobSchemaType>({
-    resolver: zodResolver(applyJobSchema),
-    defaultValues: {
-      coverLetter: "",
-      email: "",
-      name: "",
-      resume: undefined,
-    },
-  });
+  return data.applications[0];
+};
 
-  const handleSubmit = async (data: ApplyJobSchemaType) => {
-    console.log("Application submitted:", data);
-  };
+const getJob = async (jobId: string) => {
+  const { data } = await axios.get(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/jobs/${jobId}`,
+  );
 
+  return data;
+};
+
+export default async function ApplyJobPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const session = await getSession();
+  if (!session || session.user?.accountType !== "candidate") {
+    throw new Error("Unauthorized");
+  }
+
+  const { id } = await params; // JobId from params
+  const application = await getApplication(id, session.user.id);
+  const job = await getJob(id);
+  
   return (
     <section className="container py-10">
       {/* Job Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">Frontend Developer</h1>
+        <h1 className="text-3xl font-bold">{job.title}</h1>
         <p className="text-muted-foreground">
-          Remote · Full-time · Posted 2 days ago
+          {job.location} · {job.jobType} · Posted{" "}
+          {formatDistanceToNow(new Date(job.createdAt), { addSuffix: true })}
         </p>
       </div>
 
       {/* Application Form */}
-      <Card className="max-w-lg mx-auto">
-        <CardHeader>
-          <CardTitle>Apply for this job</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Form form={form} className="space-y-5" onSubmit={handleSubmit}>
-            {/* Name */}
-            <Input
-              placeholder="John Doe"
-              control={form.control}
-              name="name"
-              label="Full Name"
-            />
+      {application ? (
+        <Card className="max-w-xl rounded-2xl shadow-sm mx-auto">
+          <CardHeader className="space-y-1">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                <User className="h-4 w-4" />
+                {application.name}
+              </CardTitle>
+              <Badge
+                variant={
+                  application.status === "pending"
+                    ? "secondary"
+                    : application.status === "accepted"
+                      ? "default"
+                      : "destructive"
+                }
+              >
+                {application.status}
+              </Badge>
+            </div>
+            <p className="text-sm text-muted-foreground flex items-center gap-2">
+              <Mail className="h-4 w-4" />
+              {application.email}
+            </p>
+          </CardHeader>
 
-            {/* Email */}
-            <Input
-              placeholder="you@company.com"
-              control={form.control}
-              name="email"
-              label="Email"
-            />
+          <Separator />
 
-            {/* Resume */}
-            <FileInput form={form} label="Resume" name="resume" />
+          <CardContent className="space-y-3 pt-4">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Job Title</span>
+              <span className="font-mono">{application.job.title}</span>
+            </div>
 
-            {/* Cover Letter */}
-            <Input
-              placeholder="Write a short cover letter..."
-              control={form.control}
-              name="coverLetter"
-              label="Cover Letter (optional)"
-              type="textarea"
-            />
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground flex items-center gap-2">
+                <FileText className="h-4 w-4" /> Resume
+              </span>
+              <span className="font-mono">{application.resume.fileName}</span>
+            </div>
 
-            <SubmitButton pending={loading} className="w-full">
-              Submit Application
-            </SubmitButton>
-          </Form>
-        </CardContent>
-      </Card>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground flex items-center gap-2">
+                <Clock className="h-4 w-4" /> Applied On
+              </span>
+              <span>
+                {format(new Date(application.createdAt), "dd MMM yyyy")} ·{" "}
+                {format(new Date(application.createdAt), "hh:mm a")}
+              </span>
+            </div>
+
+            {application.coverLetter && (
+              <div className="space-y-1 rounded-lg border bg-muted/40 p-3 text-sm">
+                <div className="flex items-center gap-2 font-medium">
+                  <FileText className="h-4 w-4" />
+                  Cover Letter
+                </div>
+
+                <p className="whitespace-pre-line text-muted-foreground">
+                  {application.coverLetter}
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className="max-w-lg mx-auto">
+          <CardHeader>
+            <CardTitle>Apply for this job</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ApplyJobForm jobId={id} user={session.user} />
+          </CardContent>
+        </Card>
+      )}
     </section>
   );
 }

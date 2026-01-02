@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
       { expiresIn: "1h" },
     );
 
-    await db()
+    await db();
     const user = await UserModel.findOneAndUpdate(
       { email },
       { verificationToken },
@@ -37,19 +37,21 @@ export async function POST(req: NextRequest) {
         { status: 404 },
       );
 
-    const transporter = createTransporter();
+    console.log("VERIFICATION CODE: ", verificationCode);
 
-    await transporter.sendMail({
-      from: `"Workora" <${process.env.EMAIL_USER}>`,
-      to: email,
-      subject: "Verify your Workora account",
-      html: await render(
-        verificationEmail({
-          username: user.name.split(" ")[0],
-          code: verificationCode.toString(),
-        }),
-      ),
-    });
+    // const transporter = createTransporter();
+
+    // await transporter.sendMail({
+    //   from: `"Workora" <${process.env.EMAIL_USER}>`,
+    //   to: email,
+    //   subject: "Verify your Workora account",
+    //   html: await render(
+    //     verificationEmail({
+    //       username: user.name.split(" ")[0],
+    //       code: verificationCode.toString(),
+    //     }),
+    //   ),
+    // });
 
     return Response.json(
       {
