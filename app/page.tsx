@@ -3,7 +3,7 @@ import Pagination from "@/components/pagination";
 import SearchCard from "@/components/search-card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { getSession } from "@/app/api/auth/[...nextauth]/options";
+import { Suspense } from "react";
 
 async function getJobs(params: {
   page?: string;
@@ -26,7 +26,7 @@ async function getJobs(params: {
   return res.json();
 }
 
-export default async function Home({
+export default function Home({
   searchParams,
 }: {
   searchParams: Promise<{
@@ -36,8 +36,6 @@ export default async function Home({
     type?: string;
   }>;
 }) {
-  const data = await getJobs(await searchParams);
-
   return (
     <main className="space-y-8 ">
       <section className="bg-white">
@@ -73,12 +71,40 @@ export default async function Home({
       <div className="container">
         <SearchCard />
 
-        <section className="space-y-8">
-          <JobList jobs={data.data} />
-
-          <Pagination totalItems={data.pagination.totalJobs} />
-        </section>
+        <Suspense fallback={<div>Loading...</div>}>
+          <RenderJobsList searchParams={searchParams} />
+        </Suspense>
       </div>
     </main>
+  );
+}
+
+async function RenderJobsList({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    page?: string;
+    search?: string;
+    location?: string;
+    type?: string;
+  }>;
+}) {
+  const params = await searchParams;
+  const data = await getJobs(params);
+  console.log(data);
+
+  if (data.data.length === 0) {
+    return (
+      <div className="text-center text-gray-600">
+        <p>No jobs found.</p>
+      </div>
+    );
+  }
+
+  return (
+    <section className="space-y-8">
+      <JobList jobs={data.data} />
+      <Pagination totalItems={data.pagination.totalJobs} />
+    </section>
   );
 }

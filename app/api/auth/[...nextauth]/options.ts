@@ -3,6 +3,7 @@ import UserModel from "@/models/User";
 import bcrypt from "bcryptjs";
 import { AuthOptions, getServerSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { redirect } from "next/navigation";
 
 const authOptions: AuthOptions = {
   providers: [
@@ -20,7 +21,7 @@ const authOptions: AuthOptions = {
         await db();
         const user = await UserModel.findOne({
           email: credentials.email,
-        }).select("name email password _id isVerified accountType");
+        }).select("name email password _id isVerified accountType company");
 
         if (
           !user ||
@@ -35,6 +36,7 @@ const authOptions: AuthOptions = {
           email: user.email,
           isVerified: user.isVerified,
           accountType: user.accountType,
+          company: user.company,
         };
       },
     }),
@@ -57,6 +59,7 @@ const authOptions: AuthOptions = {
         token.email = user.email;
         token.isVerified = user.isVerified;
         token.accountType = user.accountType;
+        token.company = user.company;
       }
       return token;
     },
@@ -67,6 +70,7 @@ const authOptions: AuthOptions = {
         session.user.email = token.email;
         session.user.isVerified = token.isVerified;
         session.user.accountType = token.accountType;
+        session.user.company = token.company;
       }
       return session;
     },
@@ -76,6 +80,8 @@ const authOptions: AuthOptions = {
 
 export async function getSession() {
   const session = await getServerSession(authOptions);
+
+  if (!session) redirect("/login");
 
   return session;
 }

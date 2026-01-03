@@ -11,13 +11,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import axios from "axios";
-import { FileSearch, MinusCircle, Share, SquarePen, Trash } from "lucide-react";
+import { FileSearch, Share, SquarePen, Trash } from "lucide-react";
 import { Application } from "@/models/Application";
 import { Job } from "@/models/Job";
 import { formatDistanceToNow } from "date-fns";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-import { getSession } from "@/app/api/auth/[...nextauth]/options";
-import { notFound } from "next/navigation";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip"; 
+import { User } from "next-auth";
 
 type ApplicationType = Application & {
   job: Job;
@@ -33,15 +32,8 @@ const getApplications = async (candidateId: string) => {
   };
 };
 
-export default async function CandidateDashboard({
-  candidateId,
-}: {
-  candidateId: string;
-}) {
-  const { applications } = await getApplications(candidateId);
-  const session = await getSession();
-  if (!session) return notFound();
-
+export default async function CandidateDashboard({ user }: { user: User }) {
+  const { applications } = await getApplications(user.id ?? "");
   if (applications.length == 0) return noApplications();
 
   return (
@@ -51,9 +43,7 @@ export default async function CandidateDashboard({
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold">
-                Welcome back, {session.user.name}
-              </h1>
+              <h1 className="text-3xl font-bold">Welcome back, {user.name}</h1>
               <p className="text-muted-foreground">
                 Track your applications and stay updated
               </p>

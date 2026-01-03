@@ -13,19 +13,19 @@ import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 export default function SearchCard() {
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const handleSearch = (data: SearchJobTypes) => {
-    setLoading(true)
+    setLoading(true);
     const params = new URLSearchParams(searchParams.toString());
-    params.set("search", data.query);
-    params.set("location", data.location);
-    params.set("type", data.jobType);
+    params.set("search", data.query ?? "");
+    params.set("location", data.location ?? "");
+    params.set("type", data.jobType ?? "");
     params.set("page", "1"); // reset page on new search
     router.push(`/?${params.toString()}`);
-    setLoading(false)
+    setLoading(false);
   };
 
   const form = useForm({

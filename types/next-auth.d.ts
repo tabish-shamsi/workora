@@ -8,6 +8,7 @@ declare module "next-auth" {
     id?: string;
     isVerified?: boolean;
     accountType: "candidate" | "employer";
+    company: string;
   }
 
   interface Session {
@@ -17,6 +18,7 @@ declare module "next-auth" {
       id?: string;
       isVerified?: boolean;
       accountType: "candidate" | "employer";
+      company: string;
     } & DefaultSession["user"];
   }
 }
@@ -29,6 +31,7 @@ declare module "next-auth/jwt" {
       id?: string;
       isVerified?: boolean;
       accountType: "candidate" | "employer";
+      company: string;
     };
   }
 }
