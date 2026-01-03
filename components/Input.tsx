@@ -168,7 +168,13 @@ export function Input<T extends FieldValues>({
                 className={cn("w-full justify-between font-normal")}
                 aria-invalid={fieldState.error?.message ? true : false}
               >
-                {field.value ? field.value?.toLocaleDateString() : placeholder}
+                {field.value
+                  ? new Date(field.value).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })
+                  : placeholder}
                 <ChevronDownIcon />
               </Button>
             </PopoverTrigger>

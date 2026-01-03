@@ -8,6 +8,7 @@ import { createTransporter } from "@/lib/nodemailer";
 import { render } from "@react-email/components";
 import ApplicationSubmittedEmail from "@/emails/application";
 import Resume from "@/models/Resume";
+import mongoose from "mongoose";
 
 export async function POST(
   req: NextRequest,
@@ -77,8 +78,8 @@ export async function POST(
     }
 
     const application = await ApplicationModel.create({
-      candidate: user.id,
-      job: jobId,
+      candidate: new mongoose.Types.ObjectId(user.id),
+      job: new mongoose.Types.ObjectId(jobId),
       coverLetter,
       email,
       name,

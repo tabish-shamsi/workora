@@ -15,8 +15,9 @@ import { FileSearch, Share, SquarePen, Trash } from "lucide-react";
 import { Application } from "@/models/Application";
 import { Job } from "@/models/Job";
 import { formatDistanceToNow } from "date-fns";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip"; 
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { User } from "next-auth";
+import WithdrawApplicationButton from "./withdraw-application-button";
 
 type ApplicationType = Application & {
   job: Job;
@@ -126,51 +127,59 @@ export default async function CandidateDashboard({ user }: { user: User }) {
             </TableHeader>
 
             <TableBody>
-              {applications.map((app) => (
-                <TableRow key={app._id.toString()}>
-                  <TableCell>
-                    <Link
-                      href={`/jobs/${app._id.toString()}`}
-                      className="font-medium underline"
-                    >
-                      {app.job.title}
-                    </Link>
-                  </TableCell>
+              {applications.map(
+                (app) =>
+                  app.job && (
+                    <TableRow key={app._id.toString()}>
+                      <TableCell>
+                        <Link
+                          href={`/jobs/${app._id.toString()}`}
+                          className="font-medium underline"
+                        >
+                          {app.job.title}
+                        </Link>
+                      </TableCell>
 
-                  <TableCell>{app.job.company}</TableCell>
-                  <TableCell className="capitalize">
-                    {app.job.location}
-                  </TableCell>
-                  <TableCell className="capitalize">
-                    {app.job.jobType.split("-").join(" ")}
-                  </TableCell>
+                      <TableCell>{app.job.company}</TableCell>
+                      <TableCell className="capitalize">
+                        {app.job.location}
+                      </TableCell>
+                      <TableCell className="capitalize">
+                        {app.job.jobType.split("-").join(" ")}
+                      </TableCell>
 
-                  <TableCell>
-                    <Badge
-                      variant={
-                        app.status === "pending"
-                          ? "secondary"
-                          : app.status === "Reviewed"
-                            ? "default"
-                            : app.status === "accepted"
-                              ? "outline"
-                              : "destructive"
-                      }
-                      className="capitalize"
-                    >
-                      {app.status}
-                    </Badge>
-                  </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={
+                            app.status === "pending"
+                              ? "secondary"
+                              : app.status === "Reviewed"
+                                ? "default"
+                                : app.status === "accepted"
+                                  ? "outline"
+                                  : "destructive"
+                          }
+                          className="capitalize"
+                        >
+                          {app.status}
+                        </Badge>
+                      </TableCell>
 
-                  <TableCell>
-                    {formatDistanceToNow(app.createdAt, { addSuffix: true })}
-                  </TableCell>
+                      <TableCell>
+                        {formatDistanceToNow(app.createdAt, {
+                          addSuffix: true,
+                        })}
+                      </TableCell>
 
-                  <TableCell className="text-right">
-                    {renderActions(app._id.toString(), app.job._id.toString())}
-                  </TableCell>
-                </TableRow>
-              ))}
+                      <TableCell className="text-right">
+                        {renderActions(
+                          app._id.toString(),
+                          app.job._id.toString(),
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ),
+              )}
             </TableBody>
           </Table>
         </CardContent>
@@ -193,25 +202,7 @@ function renderActions(applicationId: string, jobId: string) {
         <TooltipContent>View Application</TooltipContent>
       </Tooltip>
 
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Link href={`/jobs/${jobId}/applications/${applicationId}/edit`}>
-            <Button size="sm">
-              <SquarePen />
-            </Button>
-          </Link>
-        </TooltipTrigger>
-        <TooltipContent>Edit Application</TooltipContent>
-      </Tooltip>
-
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button size="sm">
-            <Trash />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>Withdraw Application</TooltipContent>
-      </Tooltip>
+      <WithdrawApplicationButton applicationId={applicationId} />
     </div>
   );
 }

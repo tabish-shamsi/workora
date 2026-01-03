@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/Input";
 import { useForm } from "react-hook-form";
 import Form from "@/components/Form";
@@ -11,17 +11,55 @@ import postJobSchema, { PostJobSchemaType } from "@/schemas/post-job-schema";
 import { useRouter } from "next/navigation";
 import { ErrorToast, SuccessToast } from "@/components/ui/sonner";
 import axios, { AxiosError } from "axios";
+import { useAuth } from "@/hooks/useAuth";
+import { Job } from "@/models/Job";
 
-export default function PostJobForm() {
+export default function PostJobForm({ job }: { job?: Job }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { user, isEmployer, isAuthenticated } = useAuth();
+
+  const form = useForm<PostJobSchemaType>({
+    resolver: zodResolver(postJobSchema),
+    defaultValues: {
+      title: job?.title || "",
+      company: job?.company || "",
+      location: job?.location || "",
+      type: job?.jobType || "",
+      description: job?.description || "",
+      salary: job?.salary || "",
+      lastDate: job?.lastDate ? new Date(job.lastDate) : new Date(),
+      status: job?.status,
+    },
+  });
+
+  useEffect(() => {
+    if (isAuthenticated && !isEmployer) {
+      ErrorToast("You are not authorized to post a job");
+      router.push("/");
+    }
+    if (user && !job) {
+      form.setValue("company", user.company);
+    }
+  }, [isAuthenticated]);
 
   const handleSubmit = async (data: PostJobSchemaType) => {
     try {
       setLoading(true);
-      const res = await axios.post("/api/jobs/post", data);
+      const url = job ? `/api/jobs/${job._id}` : "/api/jobs/post";
+      let res;
+
+      if (job) {
+        const editPost = await axios.patch(url, data);
+        res = editPost;
+        router.push("/dashboard");
+      } else {
+        const newPost = await axios.post(url, data);
+        res = newPost;
+        router.push("/");
+      }
+
       SuccessToast(res.data.message);
-      router.push("/");
     } catch (error) {
       console.log(error);
       if (error instanceof AxiosError) ErrorToast(error?.response?.data.error);
@@ -30,19 +68,6 @@ export default function PostJobForm() {
       setLoading(false);
     }
   };
-
-  const form = useForm({
-    resolver: zodResolver(postJobSchema),
-    defaultValues: {
-      title: "",
-      company: "",
-      location: "",
-      type: "",
-      description: "",
-      salary: "",
-      lastDate: undefined,
-    },
-  });
 
   return (
     <Form onSubmit={handleSubmit} form={form} className="space-y-8">
@@ -88,6 +113,18 @@ export default function PostJobForm() {
         control={form.control}
       />
 
+      {job && (
+        <Input
+          name="status"
+          label="Job Status"
+          control={form.control}
+          type="select"
+          options={["open", "filled", "expired"]}
+          placeholder="Select Job Status"
+          className="select:w-full"
+        />
+      )}
+
       {/* Last Date */}
       <Input
         name="lastDate"
@@ -106,7 +143,9 @@ export default function PostJobForm() {
         type="textarea"
       />
       {/* Submit */}
-      <SubmitButton pending={loading}>Post Job</SubmitButton>
+      <SubmitButton pending={loading}>
+        {job ? "Save Changes" : "Post Job"}
+      </SubmitButton>
     </Form>
   );
 }

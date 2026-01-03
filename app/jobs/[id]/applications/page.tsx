@@ -1,4 +1,4 @@
-import { Badge } from "@/components/ui/badge";
+import ChangeApplicationStatus from "@/components/change-application-status"; 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -12,7 +12,7 @@ import {
 import { Application } from "@/models/Application";
 import { Job } from "@/models/Job";
 import axios from "axios";
-import { FileSearch } from "lucide-react";
+import { Download, FileSearch, Share } from "lucide-react";
 import { getSession } from "next-auth/react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -95,7 +95,14 @@ async function RenderApplicationsPage({
             <TableBody>
               {applications.map((app) => (
                 <TableRow key={app._id.toString()}>
-                  <TableCell className="font-medium">{app.name}</TableCell>
+                  <TableCell className="font-medium">
+                    <Link
+                      href={`/dashboard/applications/${app._id.toString()}`}
+                      className="flex items-center gap-2"
+                    >
+                      {app.name} <Share className="w-4 h-4" />
+                    </Link>
+                  </TableCell>
 
                   <TableCell>{app.email}</TableCell>
 
@@ -108,19 +115,10 @@ async function RenderApplicationsPage({
                   </TableCell>
 
                   <TableCell>
-                    <Badge
-                      variant={
-                        app.status === "Pending"
-                          ? "secondary"
-                          : app.status === "Reviewed"
-                            ? "default"
-                            : app.status === "Shortlisted"
-                              ? "outline"
-                              : "destructive"
-                      }
-                    >
-                      {app.status}
-                    </Badge>
+                    <ChangeApplicationStatus
+                      status={app.status}
+                      applicationId={app._id.toString()}
+                    />
                   </TableCell>
 
                   <TableCell className="text-right">

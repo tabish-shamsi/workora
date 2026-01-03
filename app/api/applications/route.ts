@@ -10,7 +10,6 @@ export async function GET(req: NextRequest) {
   const limit = Number(searchParams.get("limit")) || 6;
   const skip = (page - 1) * limit;
 
-
   let query;
 
   if (candidate) {
@@ -21,7 +20,7 @@ export async function GET(req: NextRequest) {
     query = { ...query, job };
   }
 
-  await db();  
+  await db();
   const applications = await ApplicationModel.find(query)
     .populate({
       path: "job",
@@ -29,21 +28,19 @@ export async function GET(req: NextRequest) {
     })
     .populate({ path: "resume", select: "fileName url" })
     .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(limit)
     .lean();
 
   const totalApplications = await ApplicationModel.countDocuments({
     candidate,
     job,
-  })  
+  });
 
   return Response.json({
     applications,
     pagination: {
       totalApplications,
       totalPages: Math.ceil(totalApplications / limit),
-      currentPage: page, 
+      currentPage: page,
     },
   });
 }

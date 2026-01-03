@@ -1,33 +1,35 @@
 "use client";
 
-import { User } from "next-auth";
 import Form from "@/components/Form";
 import { Input } from "@/components/Input";
 import SubmitButton from "@/components/submit-button";
 import ResumeInput from "@/components/resume-input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import applyJobSchema, { ApplyJobSchemaType } from "@/schemas/apply-job-schema";
 import { ErrorToast, SuccessToast } from "./ui/sonner";
 import axios, { AxiosError } from "axios";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
+import { Application } from "@/models/Application";
 
-type ApplyJobFormProps = {
-  jobId: string;
-  user: User;
-};
-
-export default function ApplyJobForm({ jobId, user }: ApplyJobFormProps) {
+export default function ApplyJobForm({
+  application,
+}: {
+  application?: Application;
+}) {
   const [loading, setLoading] = useState(false);
+  const { user, isCandidate, isAuthenticated } = useAuth();
   const router = useRouter();
+  const { id: jobId } = useParams();
 
   const form = useForm<ApplyJobSchemaType>({
     resolver: zodResolver(applyJobSchema),
     defaultValues: {
-      coverLetter: "",
-      email: user.email,
-      name: user.name,
+      coverLetter: application?.coverLetter || "",
+      email: application?.email || "",
+      name: application?.name || "",
       resume: "",
     },
   });
@@ -50,6 +52,17 @@ export default function ApplyJobForm({ jobId, user }: ApplyJobFormProps) {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (isAuthenticated && !isCandidate) {
+      ErrorToast("You must be a candidate to apply for a job");
+      router.push("/dashboard");
+    }
+    if (user) {
+      form.setValue("name", user.name || "");
+      form.setValue("email", user.email || "");
+    }
+  }, [user]);
 
   return (
     <Form form={form} className="space-y-5" onSubmit={handleSubmit}>

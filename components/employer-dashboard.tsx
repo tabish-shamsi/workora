@@ -15,12 +15,17 @@ import ApplicationModel from "@/models/Application";
 import { User } from "next-auth";
 import { formatDistanceToNow } from "date-fns";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-import { Eye, FileText, Pencil } from "lucide-react";
+import { Eye, FileText, Pencil, Trash } from "lucide-react";
+import DeleteJobButton from "./delete-job-button";
 
 const getJobs = async (employerId: string) => {
   const jobs = (await JobModel.find({ employer: employerId })) as Job[];
-  const applications = await ApplicationModel.find({ employer: employerId });
-  const totalApplications = applications.length;
+  const jobIds = jobs.map((job) => job._id);
+
+  const totalApplications = await ApplicationModel.countDocuments({
+    job: { $in: jobIds },
+  });
+
   return { jobs, totalApplications };
 };
 
@@ -120,44 +125,47 @@ export default async function EmployerDashboard({ user }: { user: User }) {
                   </TableCell>
 
                   <TableCell className="text-right">
-                    
-                      <div className="flex justify-end gap-1">
-                        {/* View Job */}
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button size="icon" asChild>
-                              <Link href={`/jobs/${job._id.toString()}`}>
-                                <Eye className="h-4 w-4" />
-                              </Link>
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>View job details</TooltipContent>
-                        </Tooltip>
+                    <div className="flex justify-end gap-1">
+                      {/* View Job */}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button size="icon" asChild>
+                            <Link href={`/jobs/${job._id.toString()}`}>
+                              <Eye className="h-4 w-4" />
+                            </Link>
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>View job details</TooltipContent>
+                      </Tooltip>
 
-                        {/* View Applications */}
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button size="icon" asChild>
-                              <Link href={`/jobs/${job._id.toString()}/applications`}>
-                                <FileText className="h-4 w-4" />
-                              </Link>
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>View applications</TooltipContent>
-                        </Tooltip>
+                      {/* View Applications */}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button size="icon" asChild>
+                            <Link
+                              href={`/jobs/${job._id.toString()}/applications`}
+                            >
+                              <FileText className="h-4 w-4" />
+                            </Link>
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>View applications</TooltipContent>
+                      </Tooltip>
 
-                        {/* Edit Job */}
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button size="icon" asChild>
-                              <Link href={`/jobs/${job._id.toString()}/edit`}>
-                                <Pencil className="h-4 w-4" />
-                              </Link>
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>Edit job</TooltipContent>
-                        </Tooltip>
-                      </div> 
+                      {/* Edit Job */}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button size="icon" asChild>
+                            <Link href={`/jobs/${job._id.toString()}/edit`}>
+                              <Pencil className="h-4 w-4" />
+                            </Link>
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Edit job</TooltipContent>
+                      </Tooltip>
+                      {/* Delete Job */}
+                      <DeleteJobButton jobId={job._id.toString()} />
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}

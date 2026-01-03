@@ -3,7 +3,8 @@ import ApplicationCard from "@/components/application-card";
 import axios from "axios";
 import { formatDistanceToNowStrict } from "date-fns";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { Suspense } from "react";
 
 const getApplication = async (applicationId: string) => {
   const { data } = await axios.get(
@@ -12,7 +13,19 @@ const getApplication = async (applicationId: string) => {
   return data;
 };
 
-export default async function ApplicationPage({
+export default function ApplicationPage({
+  params,
+}: {
+  params: Promise<{ id: string; applicationId: string }>;
+}) {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <RenderApplicationPage params={params} />
+    </Suspense>
+  );
+}
+
+async function RenderApplicationPage({
   params,
 }: {
   params: Promise<{ id: string; applicationId: string }>;
@@ -23,9 +36,9 @@ export default async function ApplicationPage({
   const { applicationId } = await params;
   const application = await getApplication(applicationId);
   const isAppliedCandidate = session.user.id === application.candidate;
-  const isOwner = session.user.id === application.job._id;
+  const isOwner = session.user.id === application.job.employer;
 
-  if (!isAppliedCandidate && !isOwner) return notFound();
+  if (!isAppliedCandidate && !isOwner) redirect("/dashboard");
 
   if (!application) return notFound();
 
