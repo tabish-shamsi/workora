@@ -37,21 +37,21 @@ export async function POST(req: NextRequest) {
         { status: 404 },
       );
 
-    console.log("VERIFICATION CODE: ", verificationCode);
+    // console.log("VERIFICATION CODE: ", verificationCode);
 
-    // const transporter = createTransporter();
+    const transporter = createTransporter();
 
-    // await transporter.sendMail({
-    //   from: `"Workora" <${process.env.EMAIL}>`,
-    //   to: email,
-    //   subject: "Verify your Workora account",
-    //   html: await render(
-    //     verificationEmail({
-    //       username: user.name.split(" ")[0],
-    //       code: verificationCode.toString(),
-    //     }),
-    //   ),
-    // });
+    await transporter.sendMail({
+      from: `"Workora" <${process.env.EMAIL}>`,
+      to: email,
+      subject: "Verify your Workora account",
+      html: await render(
+        verificationEmail({
+          username: user.name.split(" ")[0],
+          code: verificationCode.toString(),
+        }),
+      ),
+    });
 
     return Response.json(
       {

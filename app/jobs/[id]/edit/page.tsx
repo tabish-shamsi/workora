@@ -1,5 +1,6 @@
 import { getSession } from "@/app/api/auth/[...nextauth]/options";
 import PostJobForm from "@/components/postjob-form";
+import { JobFormSkeleton } from "@/components/skeletons/post-job-skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import axios from "axios";
 import { formatDistanceToNow } from "date-fns";
@@ -8,7 +9,7 @@ import { Suspense } from "react";
 
 export default function page({ params }: { params: Promise<{ id: string }> }) {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<JobFormSkeleton />}>
       <RenderEditPage params={params} />
     </Suspense>
   );

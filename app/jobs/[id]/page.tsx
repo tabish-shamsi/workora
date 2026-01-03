@@ -6,6 +6,11 @@ import { formatDistanceToNow, format } from "date-fns";
 import Link from "next/link";
 import axios from "axios";
 import { getSession } from "@/app/api/auth/[...nextauth]/options";
+import ApplicationModel from "@/models/Application";
+import { JobDetailsSkeleton } from "@/components/skeletons/job-detail-card-skeleton";
+import { Suspense } from "react";
+import "@/models/Resume";
+import "@/models/Job";
 
 type JobDetailsPageProps = {
   params: Promise<{
@@ -13,7 +18,24 @@ type JobDetailsPageProps = {
   }>;
 };
 
-export default async function JobDetailsPage({ params }: JobDetailsPageProps) {
+const getApplications = async (jobId: string) => {
+  const applications = await ApplicationModel.find({
+    job: jobId,
+  })
+    .populate("job")
+    .populate("resume");
+  return applications;
+};
+
+export default function JobDetailPage({ params }: JobDetailsPageProps) {
+  return (
+    <Suspense fallback={<JobDetailsSkeleton />}>
+      <RenderJobDetailsPage params={params} />
+    </Suspense>
+  );
+}
+
+async function RenderJobDetailsPage({ params }: JobDetailsPageProps) {
   const session = await getSession();
   const { id } = await params;
   const { data: job } = await axios.get(
@@ -24,13 +46,14 @@ export default async function JobDetailsPage({ params }: JobDetailsPageProps) {
   let application: any;
 
   if (session) {
-    const res = await axios.get(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/applications?job=${id}&candidate=${session.user.id}`,
+    const applications = await getApplications(id);
+    application = applications.find(
+      (application: any) =>
+        application.candidate.toString() === session.user.id,
     );
 
-    if (res.data.applications.length > 0) {
+    if (application) {
       alreadyApplied = true;
-      application = res.data.applications[0];
     }
   }
 

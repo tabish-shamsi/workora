@@ -1,6 +1,7 @@
 import JobList from "@/components/job-list";
 import Pagination from "@/components/pagination";
 import SearchCard from "@/components/search-card";
+import JobSkeleton from "@/components/skeletons/jobs-skeleton";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -68,13 +69,13 @@ export default function Home({
       </section>
 
       {/* Container wrapper */}
-      <div className="container">
+      <section className="container">
         <SearchCard />
 
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<JobSkeleton />}>
           <RenderJobsList searchParams={searchParams} />
         </Suspense>
-      </div>
+      </section>
     </main>
   );
 }
@@ -91,7 +92,6 @@ async function RenderJobsList({
 }) {
   const params = await searchParams;
   const data = await getJobs(params);
-  console.log(data);
 
   if (data.data.length === 0) {
     return (
@@ -102,9 +102,9 @@ async function RenderJobsList({
   }
 
   return (
-    <section className="space-y-8">
+    <div className="space-y-8">
       <JobList jobs={data.data} />
       <Pagination totalItems={data.pagination.totalJobs} />
-    </section>
+    </div>
   );
 }

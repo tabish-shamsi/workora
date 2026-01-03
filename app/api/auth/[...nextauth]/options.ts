@@ -80,9 +80,6 @@ const authOptions: AuthOptions = {
 
 export async function getSession() {
   const session = await getServerSession(authOptions);
-
-  if (!session) redirect("/login");
-
   return session;
 }
 

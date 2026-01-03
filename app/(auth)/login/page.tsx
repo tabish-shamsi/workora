@@ -40,7 +40,8 @@ export default function LoginPage() {
         if (callback?.ok) {
           SuccessToast("Logged in successfully");
           setLoading(false);
-          router.replace("/dashboard");
+          router.push("/dashboard");
+          // router.refresh()
         }
       })
       .catch((error) => {

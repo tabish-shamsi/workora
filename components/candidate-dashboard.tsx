@@ -10,31 +10,22 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import axios from "axios";
-import { FileSearch, Share, SquarePen, Trash } from "lucide-react";
-import { Application } from "@/models/Application";
-import { Job } from "@/models/Job";
+import { FileSearch, Share } from "lucide-react";
+import ApplicationModel from "@/models/Application"; 
 import { formatDistanceToNow } from "date-fns";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { User } from "next-auth";
 import WithdrawApplicationButton from "./withdraw-application-button";
 
-type ApplicationType = Application & {
-  job: Job;
-};
-
 const getApplications = async (candidateId: string) => {
-  const res = await axios.get(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/applications?candidate=${candidateId}`,
-  );
-  return {
-    applications: res.data.applications as ApplicationType[],
-    pagination: res.data.pagination,
-  };
+  const applications = ApplicationModel.find({
+    candidate: candidateId,
+  }).populate("job");
+  return applications;
 };
 
 export default async function CandidateDashboard({ user }: { user: User }) {
-  const { applications } = await getApplications(user.id ?? "");
+  const applications = await getApplications(user.id ?? "");
   if (applications.length == 0) return noApplications();
 
   return (
@@ -133,7 +124,7 @@ export default async function CandidateDashboard({ user }: { user: User }) {
                     <TableRow key={app._id.toString()}>
                       <TableCell>
                         <Link
-                          href={`/jobs/${app._id.toString()}`}
+                          href={`/jobs/${app.job._id.toString()}`}
                           className="font-medium underline"
                         >
                           {app.job.title}

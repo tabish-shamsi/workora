@@ -1,4 +1,5 @@
 import ApplyJobForm from "@/components/applyjob-form";
+import JobTitleSkeleton from "@/components/skeletons/job-title-skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import axios from "axios";
 import { formatDistanceToNow } from "date-fns";
@@ -21,7 +22,7 @@ export default function ApplyJobPage({
   return (
     <section className="container py-10">
       {/* Job Header */}
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<JobTitleSkeleton />}>
         <RenderJobHeader params={params} />
       </Suspense>
 

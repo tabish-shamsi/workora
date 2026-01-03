@@ -3,10 +3,11 @@ import { getSession } from "../api/auth/[...nextauth]/options";
 import CandidateDashboard from "@/components/candidate-dashboard";
 import EmployerDashboard from "@/components/employer-dashboard";
 import { Suspense } from "react";
+import { DashboardSkeleton } from "@/components/skeletons/dashboard-skeleton";
 
 export default async function DashboardPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<DashboardSkeleton />}>
       <RenderDashboard />
     </Suspense>
   );

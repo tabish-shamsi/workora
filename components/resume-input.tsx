@@ -31,8 +31,12 @@ export default function ResumeInput({ form }: { form: UseFormReturn<any> }) {
   useEffect(() => {
     const fetchResumes = async () => {
       const res = await axios.get<Resume[]>("/api/resume");
-
-      if (!res.data.length) return;
+      console.log(res);
+      
+      if (!res.data.length || res.data.length === 0) {
+        setLoading(false);
+        return;
+      };
 
       const sorted = [...res.data].sort(
         (a, b) =>

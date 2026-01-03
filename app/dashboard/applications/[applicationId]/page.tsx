@@ -1,5 +1,6 @@
 import { getSession } from "@/app/api/auth/[...nextauth]/options";
 import ApplicationCard from "@/components/application-card";
+import ApplicationSkeleton from "@/components/skeletons/application-skeleton";
 import axios from "axios";
 import { formatDistanceToNowStrict } from "date-fns";
 import Link from "next/link";
@@ -19,7 +20,7 @@ export default function ApplicationPage({
   params: Promise<{ id: string; applicationId: string }>;
 }) {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<ApplicationSkeleton />}>
       <RenderApplicationPage params={params} />
     </Suspense>
   );

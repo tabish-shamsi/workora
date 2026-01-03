@@ -1,4 +1,6 @@
-import ChangeApplicationStatus from "@/components/change-application-status"; 
+import { getSession } from "@/app/api/auth/[...nextauth]/options";
+import ChangeApplicationStatus from "@/components/change-application-status";
+import ApplicationsSkeleton from "@/components/skeletons/applications-skeleton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -9,24 +11,21 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Application } from "@/models/Application";
-import { Job } from "@/models/Job";
-import axios from "axios";
-import { Download, FileSearch, Share } from "lucide-react";
-import { getSession } from "next-auth/react";
+import ApplicationModel from "@/models/Application";
+import { FileSearch, Share } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
-type ApplicationType = Application & {
-  job: Job;
-};
-
 const getApplications = async (jobId: string) => {
-  const res = await axios.get(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/applications?job=${jobId}`,
-  );
-  return res.data.applications as ApplicationType[];
+  const applications = await ApplicationModel.find({
+    job: jobId,
+  })
+    .populate("job")
+    .populate("resume");
+  console.log(`APPLICAITONS: `, applications);
+
+  return applications;
 };
 
 export default function ApplicationsPage({
@@ -35,7 +34,7 @@ export default function ApplicationsPage({
   params: Promise<{ id: string }>;
 }) {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<ApplicationsSkeleton />}>
       <RenderApplicationsPage params={params} />
     </Suspense>
   );
@@ -51,7 +50,7 @@ async function RenderApplicationsPage({
   const applications = await getApplications(id);
   if (applications.length === 0) return noApplications();
 
-  const isOwner = applications[0].job.employer === session?.user.id;
+  const isOwner = applications[0].job.employer.toString() === session?.user.id;
   if (!isOwner) redirect(`/jobs/${id}`);
 
   return (
@@ -122,9 +121,11 @@ async function RenderApplicationsPage({
                   </TableCell>
 
                   <TableCell className="text-right">
-                    <Button size="sm" variant="outline">
-                      Download
-                    </Button>
+                    <Link href={app.resume.url} target="_blank">
+                      <Button size="sm" variant="outline">
+                        Download
+                      </Button>
+                    </Link>
                   </TableCell>
                 </TableRow>
               ))}
