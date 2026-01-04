@@ -32,7 +32,7 @@ async function RenderApplicationPage({
   params: Promise<{ id: string; applicationId: string }>;
 }) {
   const session = await getSession();
-  if (!session) return notFound();
+  if (!session) return redirect("/login");
 
   const { applicationId } = await params;
   const application = await getApplication(applicationId);

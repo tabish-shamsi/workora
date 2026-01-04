@@ -15,7 +15,7 @@ export default async function DashboardPage() {
 
 async function RenderDashboard() {
   const session = await getSession();
-  const user = session.user as User;
+  const user = session?.user as User;
   const isCandidate = user.accountType === "candidate";
   const isEmployer = user.accountType === "employer";
 
