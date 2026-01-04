@@ -1,6 +1,5 @@
 import db from "@/lib/db";
-import JobModel from "@/models/Job";
-import UserModel from "@/models/User";
+import JobModel from "@/models/Job"; 
 import { NextRequest } from "next/server";
 import { getSession } from "../../auth/[...nextauth]/options";
 import { revalidatePath } from "next/cache";

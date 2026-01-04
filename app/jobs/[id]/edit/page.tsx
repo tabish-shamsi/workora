@@ -21,7 +21,7 @@ async function RenderEditPage({ params }: { params: Promise<{ id: string }> }) {
   const { data: job } = await axios.get(
     `${process.env.NEXT_PUBLIC_BASE_URL}/api/jobs/${id}`,
   );
-  const isOwner = session.user.id === job.employer;
+  const isOwner = session?.user.id === job.employer;
   if (!isOwner) redirect(`/jobs/${id}`);
 
   return (

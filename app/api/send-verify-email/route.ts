@@ -15,7 +15,6 @@ export async function POST(req: NextRequest) {
   const email = session.user?.email;
   try {
     const verificationCode = Math.floor(100000 + Math.random() * 900000);
-    // const verificationExpiry = new Date(Date.now() + 3600000); // 1 hour from now
 
     const verificationToken = jwt.sign(
       { verificationCode },
@@ -36,8 +35,6 @@ export async function POST(req: NextRequest) {
         },
         { status: 404 },
       );
-
-    // console.log("VERIFICATION CODE: ", verificationCode);
 
     const transporter = createTransporter();
 

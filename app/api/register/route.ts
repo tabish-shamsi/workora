@@ -6,9 +6,6 @@ import db from "@/lib/db";
 export async function POST(req: NextRequest) {
   const { name, email, password, accountType, company } = await req.json();
 
-  // console.log({name, email, password, accountType, company});
-  
-
   if (
     !name ||
     !email ||

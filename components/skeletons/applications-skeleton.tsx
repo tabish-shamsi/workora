@@ -1,5 +1,3 @@
-"use client";
-
 import { Skeleton } from "@/components/ui/skeleton";
 import JobTitleSkeleton from "./job-title-skeleton";
 
@@ -12,7 +10,7 @@ export default function ApplicationsSkeleton() {
       {/* Stats Card  */}
       <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-1">
         <div className="rounded-xl border bg-card p-6 space-y-4">
-          <Skeleton className="h-4 w-1/3" /> 
+          <Skeleton className="h-4 w-1/3" />
         </div>
       </div>
 

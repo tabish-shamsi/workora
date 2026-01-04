@@ -12,7 +12,7 @@ export type Job = {
   lastDate: Date;
   createdAt: Date;
   salary: string;
-  applications?: mongoose.Types.ObjectId[]; // | Application[]
+  applications?: mongoose.Types.ObjectId[];
 };
 
 const jobSchema = new mongoose.Schema<Job>(
