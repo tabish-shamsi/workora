@@ -3,7 +3,6 @@ import UserModel from "@/models/User";
 import bcrypt from "bcryptjs";
 import { AuthOptions, getServerSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { redirect } from "next/navigation";
 
 const authOptions: AuthOptions = {
   providers: [

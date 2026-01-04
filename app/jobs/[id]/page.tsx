@@ -11,6 +11,7 @@ import { JobDetailsSkeleton } from "@/components/skeletons/job-detail-card-skele
 import { Suspense } from "react";
 import "@/models/Resume";
 import "@/models/Job";
+import db from "@/lib/db";
 
 type JobDetailsPageProps = {
   params: Promise<{
@@ -19,6 +20,7 @@ type JobDetailsPageProps = {
 };
 
 const getApplications = async (jobId: string) => {
+  await db()
   const applications = await ApplicationModel.find({
     job: jobId,
   })

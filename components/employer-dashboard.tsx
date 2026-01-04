@@ -17,8 +17,10 @@ import { formatDistanceToNow } from "date-fns";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { Eye, FileText, Pencil, Trash } from "lucide-react";
 import DeleteJobButton from "./delete-job-button";
+import db from "@/lib/db";
 
 const getJobs = async (employerId: string) => {
+  await db()
   const jobs = (await JobModel.find({ employer: employerId })) as Job[];
   const jobIds = jobs.map((job) => job._id);
 

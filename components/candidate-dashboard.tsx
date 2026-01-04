@@ -16,8 +16,10 @@ import { formatDistanceToNow } from "date-fns";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { User } from "next-auth";
 import WithdrawApplicationButton from "./withdraw-application-button";
+import db from "@/lib/db";
 
 const getApplications = async (candidateId: string) => {
+  await db()
   const applications = ApplicationModel.find({
     candidate: candidateId,
   }).populate("job");

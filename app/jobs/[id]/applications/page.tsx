@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import db from "@/lib/db";
 import ApplicationModel from "@/models/Application";
 import { FileSearch, Share } from "lucide-react";
 import Link from "next/link";
@@ -18,6 +19,8 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 const getApplications = async (jobId: string) => {
+  await db();
+
   const applications = await ApplicationModel.find({
     job: jobId,
   })
