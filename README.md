@@ -30,8 +30,9 @@ Workora isn't just another job board. It's a **complete ecosystem** that bridges
 ### 🏢 **For Employers**
 - **Effortless Job Posting** with rich text descriptions
 - **Application Management** with candidate screening tools
-- **Company Branding** with custom profiles
-- **Analytics Dashboard** to track job performance
+- **Job Management** with dedicated dashboard
+- **Email Notifications** when someone applies to your job
+
 
 ---
 
@@ -54,7 +55,6 @@ Workora isn't just another job board. It's a **complete ecosystem** that bridges
 ### 💼 **Job Management**
 - **Rich job posting** with markdown support
 - **Smart search** with full-text indexing
-- **Advanced filtering** (location, type, salary)
 - **Auto-expiration** after 30 days
 - **Status management** (Open/Filled/Expired)
 
@@ -71,18 +71,6 @@ Workora isn't just another job board. It's a **complete ecosystem** that bridges
 - **Email notifications** for status updates
 
 </td>
-<td width="50%">
-
-### 🎨 **Modern UI/UX**
-- **Responsive design** that works everywhere
-- **Dark/Light mode** support
-- **Loading skeletons** for smooth UX
-- **Accessible components** with Radix UI
-- **Beautiful animations** with Tailwind
-
-</td>
-</tr>
-</table>
 
 ---
 
