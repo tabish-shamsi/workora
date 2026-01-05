@@ -11,7 +11,7 @@
 
 *A full-stack job board platform built for the modern web. Connect talent with opportunity seamlessly.*
 
-[🎯 **Live Demo**](https://workora.vercel.app) • [📖 **Documentation**](#-getting-started) • [🐛 **Report Bug**](https://github.com/your-username/workora/issues)
+[🎯 **Live Demo**](https://workoraa.vercel.app) • [📖 **Documentation**](#-getting-started) • [🐛 **Report Bug**](https://github.com/your-username/workora/issues)
 
 </div>
 
